@@ -91,16 +91,20 @@ def estimate(data_dir: str) -> pd.DataFrame:
     # ---- report + cross-check ----
     tot = int(dist["est_encumbered"].sum())
     lo, hi = int(dist["ci_low"].sum()), int(dist["ci_high"].sum())
-    off = mp_state_total(data_dir)["loans_count"]
+    mp = mp_state_total(data_dir)          # None if MP loan figure is unvetted
     print(f"sampled villages: {sampled['lgd_village_code'].nunique()}  "
           f"plots checked: {int(sampled['plots_checked'].sum()):,}  "
           f"with loan: {int(sampled['plots_with_loan'].sum()):,}")
     print(f"state encumbrance rate (sample): {g_all[0]*100:.3f}%  "
           f"[{g_all[1]*100:.3f}–{g_all[2]*100:.3f}]")
     print(f"estimated encumbered cards (extrapolated): {tot:,}  CI [{lo:,} – {hi:,}]")
-    print(f"official card-backed loans: {off:,}")
-    print(f"cross-check estimate/official: {tot/off:.1f}x  "
-          f"(RoR=any charge upper bound; official=card-backed precise)")
+    if mp:
+        off = mp["loans_count"]
+        print(f"official card-backed loans (vetted): {off:,}")
+        print(f"cross-check estimate/official: {tot/off:.1f}x  "
+              f"(RoR=any charge upper bound; official=card-backed precise)")
+    else:
+        print("cross-check: skipped — no vetted official MP loan figure to compare against.")
     print(f"-> {os.path.join(data_dir,'estimates.parquet')}")
     return dist
 

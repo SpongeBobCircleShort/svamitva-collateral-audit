@@ -22,9 +22,9 @@ import argparse
 import pandas as pd
 
 try:
-    from aggregate_numerator import load as load_aggregate
+    from aggregate_numerator import load as load_aggregate, mp_state_total, national_context
 except ImportError:
-    from src.aggregate_numerator import load as load_aggregate
+    from src.aggregate_numerator import load as load_aggregate, mp_state_total, national_context
 
 
 def _read_sample(data_dir: str) -> pd.DataFrame:
@@ -74,9 +74,10 @@ def build(data_dir: str) -> None:
     _den = dist["plots_checked"].where(dist["plots_checked"].fillna(0) > 0)
     dist["sampled_rate"] = dist["plots_with_loan"] / _den
 
-    # official district loans, if any district rows were added to aggregate_loans.csv
+    # official district loans, only VETTED district rows (none published today)
     agg = load_aggregate(data_dir)
-    dloans = agg[agg["level"] == "district"][["district", "loans_count", "loan_amount_cr"]]
+    dloans = agg[(agg["level"] == "district") & agg["vetted"]][
+        ["district", "loans_count", "loan_amount_cr"]]
     if len(dloans):
         dist = dist.merge(dloans.rename(columns={"district": "district_en",
                                                  "loans_count": "official_loans",
@@ -95,19 +96,26 @@ def build(data_dir: str) -> None:
     dist = dist.sort_values("cards", ascending=False)
     dist.to_parquet(os.path.join(data_dir, "district_vetting.parquet"), index=False)
 
-    # ---- state summary (headline verdict) -----------------------------------
-    mp = agg[(agg.level == "state") & (agg.state == "Madhya Pradesh")].iloc[0]
+    # ---- state summary --------------------------------------------------------
+    # Only VETTED numbers drive the site. There is no vetted MP loan figure, so the
+    # loan-side verdict is deliberately null; the vetted national total is carried
+    # separately as clearly-labelled external context (not an MP verdict).
+    mp = mp_state_total(data_dir)          # None -> MP numerator unvetted
+    nat = national_context(data_dir)
     cards_total = int(df["cards_distributed"].fillna(0).sum())
-    loans = int(mp["loans_count"])
+    loans = mp["loans_count"] if mp else None
     summary = {
         "cards_total": cards_total,
         "villages_total": int(len(df)),
         "official_loans": loans,
-        "official_amount_cr": float(mp["loan_amount_cr"]),
-        "official_as_of": str(mp["as_of"]),
-        "official_source_url": str(mp["url"]),
-        "uptake_rate_pct": round(loans / cards_total * 100, 4) if cards_total else None,
-        "cards_per_loan": int(cards_total // loans) if loans else None,
+        "official_amount_cr": (mp["loan_amount_cr"] if mp else None),
+        "official_as_of": (mp["as_of"] if mp else None),
+        "official_source_url": (mp["url"] if mp else None),
+        "uptake_rate_pct": (round(loans / cards_total * 100, 4) if (loans and cards_total) else None),
+        "cards_per_loan": (int(cards_total // loans) if loans else None),
+        "numerator_vetted": bool(mp),
+        "national_context": ({"loans": nat["loans_count"], "amount_cr": nat["loan_amount_cr"],
+                              "as_of": nat["as_of"], "url": nat["url"]} if nat else None),
         "sample_villages_target": int((df.get("split") == "test").sum()) if "split" in df else 0,
         "sample_villages_done": int(df["sampled"].sum()),
         "sample_plots_checked": int(df["plots_checked"].fillna(0).sum()) if "plots_checked" in df else 0,
@@ -117,11 +125,9 @@ def build(data_dir: str) -> None:
         json.dump(summary, f, indent=2)
 
     print(f"villages={summary['villages_total']:,}  cards={cards_total:,}")
-    print(f"official loans (MP, as on {summary['official_as_of']}): {loans:,} "
-          f"(Rs {summary['official_amount_cr']:.2f} cr)")
-    print(f"uptake rate = {summary['uptake_rate_pct']}%  (1 loan / ~{summary['cards_per_loan']:,} cards)")
-    print(f"sample: {summary['sample_villages_done']}/{summary['sample_villages_target']} villages, "
-          f"{summary['sample_plots_with_loan']}/{summary['sample_plots_checked']} plots w/ loan")
+    print("MP loan numerator: " + (f"{loans:,} (VETTED)" if mp else "UNVETTED — excluded from verdict"))
+    if nat:
+        print(f"national context (labelled, not a verdict): {nat['loans_count']:,} loans / Rs {nat['loan_amount_cr']:.0f} cr")
     print("-> mp_vetting.parquet, district_vetting.parquet, state_summary.json")
 
 

@@ -26,19 +26,28 @@ import argparse
 import pandas as pd
 
 COLUMNS = ["level", "state", "district", "loans_count", "loan_amount_cr",
-           "source", "doc_title", "doc_date", "as_of", "url", "note"]
+           "source", "doc_title", "doc_date", "as_of", "url", "vetted", "note"]
 
-_SRC = "Lok Sabha (Ministry of Panchayati Raj)"
-_URL = ("https://kashmirlife.net/29-svamitva-backed-loans-worth-rs-3-97-crore-"
-        "disbursed-in-jammu-kashmir-lok-sabha-told-447515/")
-_DOC = "Lok Sabha reply on SVAMITVA-backed loans"
+# Attribution status (see the citation trail in the session):
+#  - National total is wire-reported (ANI) from a Rajya Sabha written reply, 05-08-2026,
+#    by the Min. of Panchayati Raj (Rajiv Ranjan "Lalan" Singh) -> treated as VETTED context.
+#  - The state-wise split (incl. MP 2,202) appears only in a single secondary outlet, with an
+#    unresolved House attribution and no retrievable primary annexure -> UNVETTED / provisional.
+_ANI = "https://aninews.in/news/national/general-news/330-lakh-villages-mapped-under-svamitva-scheme-rs-1713-cr-loans-disbursed-using-property-cards20260805182142/"
+_KL = ("https://kashmirlife.net/29-svamitva-backed-loans-worth-rs-3-97-crore-"
+       "disbursed-in-jammu-kashmir-lok-sabha-told-447515/")
+_RS = "Rajya Sabha written reply, Ministry of Panchayati Raj"
+_SEC = "News report (secondary) citing a parliamentary reply"
+_PROV = "PROVISIONAL — single secondary source; House attribution unresolved; primary annexure not retrieved"
 
 SEED = [
-    ["state", "Madhya Pradesh", "", 2202, 177.77, _SRC, _DOC, "2026-08-11", "2026-08-05", _URL, ""],
-    ["state", "Rajasthan", "", 8808, 1519.68, _SRC, _DOC, "2026-08-11", "2026-08-05", _URL, "peer benchmark"],
-    ["state", "Jammu & Kashmir", "", 29, 3.97, _SRC, _DOC, "2026-08-11", "2026-08-05", _URL, ""],
-    ["state", "Ladakh", "", 9, 1.61, _SRC, _DOC, "2026-08-11", "2026-08-05", _URL, ""],
-    ["national", "ALL INDIA", "", 11147, 1713.68, _SRC, _DOC, "2026-08-11", "2026-08-05", _URL, "national total"],
+    # UNVETTED state splits (kept for provenance, excluded from the live verdict)
+    ["state", "Madhya Pradesh", "", 2202, 177.77, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
+    ["state", "Rajasthan", "", 8808, 1519.68, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
+    ["state", "Jammu & Kashmir", "", 29, 3.97, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
+    ["state", "Ladakh", "", 9, 1.61, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
+    # VETTED national context (wire-reported RS reply)
+    ["national", "ALL INDIA", "", 11147, 1713.68, _RS, "SVAMITVA-backed loans (national total)", "2026-08-05", "2026-08-05", _ANI, True, "national total, wire-reported (ANI)"],
 ]
 
 
@@ -52,14 +61,33 @@ def load(data_dir: str = "data") -> pd.DataFrame:
     path = os.path.join(data_dir, "aggregate_loans.csv")
     if not os.path.exists(path):
         seed_csv(path)
-    return pd.read_csv(path)
+    df = pd.read_csv(path)
+    if "vetted" not in df.columns:      # older csv -> treat everything as unvetted
+        df["vetted"] = False
+    df["vetted"] = df["vetted"].astype(bool)
+    return df
 
 
-def mp_state_total(data_dir: str = "data") -> dict:
+def mp_state_total(data_dir: str = "data") -> dict | None:
+    """Vetted MP state loan total, or None if no vetted figure exists."""
     df = load(data_dir)
-    row = df[(df.level == "state") & (df.state == "Madhya Pradesh")].iloc[0]
-    return {"loans_count": int(row.loans_count), "loan_amount_cr": float(row.loan_amount_cr),
-            "as_of": row.as_of, "url": row.url}
+    row = df[(df.level == "state") & (df.state == "Madhya Pradesh") & df.vetted]
+    if row.empty:
+        return None
+    r = row.iloc[0]
+    return {"loans_count": int(r.loans_count), "loan_amount_cr": float(r.loan_amount_cr),
+            "as_of": r.as_of, "url": r.url}
+
+
+def national_context(data_dir: str = "data") -> dict | None:
+    """Vetted national total, shown only as clearly-labelled external context."""
+    df = load(data_dir)
+    row = df[(df.level == "national") & df.vetted]
+    if row.empty:
+        return None
+    r = row.iloc[0]
+    return {"loans_count": int(r.loans_count), "loan_amount_cr": float(r.loan_amount_cr),
+            "as_of": r.as_of, "url": r.url}
 
 
 if __name__ == "__main__":
@@ -69,15 +97,9 @@ if __name__ == "__main__":
 
     agg = load(a.data_dir)
     print(f"aggregate_loans.csv rows: {len(agg)}")
-    print(agg[["level", "state", "loans_count", "loan_amount_cr", "as_of"]].to_string(index=False))
+    print(agg[["level", "state", "loans_count", "loan_amount_cr", "vetted", "as_of"]].to_string(index=False))
 
-    dpath = os.path.join(a.data_dir, "svamitva_districts.parquet")
-    if os.path.exists(dpath):
-        cards = int(pd.read_parquet(dpath).cards_distributed.fillna(0).sum())
-        mp = mp_state_total(a.data_dir)
-        rate = mp["loans_count"] / cards * 100 if cards else 0
-        print(f"\nMP cards distributed: {cards:,}")
-        print(f"MP loans against cards (official): {mp['loans_count']:,} "
-              f"(Rs {mp['loan_amount_cr']:.2f} cr, as on {mp['as_of']})")
-        print(f"Official collateral-uptake rate: {rate:.4f}%  "
-              f"(1 loan per ~{cards // max(mp['loans_count'],1):,} cards)")
+    mp = mp_state_total(a.data_dir)
+    nat = national_context(a.data_dir)
+    print(f"\nVetted MP loan figure: {mp if mp else 'NONE — MP loan numerator is unvetted, excluded from the verdict'}")
+    print(f"Vetted national context: {nat['loans_count']:,} loans / Rs {nat['loan_amount_cr']:.2f} cr" if nat else "none")

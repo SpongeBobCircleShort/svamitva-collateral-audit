@@ -54,22 +54,33 @@ if s is None:
              "`python src/aggregate_numerator.py` → `python src/build_dataset.py`")
     st.stop()
 
-# ---------------------------------------------------------------- headline verdict
-k = st.columns(5)
-k[0].metric("Cards issued", f"{s['cards_total']:,}")
-k[1].metric("Loans against cards", f"{s['official_loans']:,}",
-            help=f"Official (Lok Sabha / MoPR), as on {s['official_as_of']}")
-k[2].metric("Uptake rate", f"{s['uptake_rate_pct']}%")
-k[3].metric("Cards per loan", f"{s['cards_per_loan']:,}")
-k[4].metric("Loan value", f"₹{s['official_amount_cr']:.0f} cr")
-
-rate = s["uptake_rate_pct"]
-verdict = ("**collateral claim largely unrealised**" if rate is not None and rate < 1
-           else "**partial uptake**")
-st.warning(
-    f"Of **{s['cards_total']:,}** SVAMITVA cards issued in MP, only **{s['official_loans']:,}** "
-    f"loans are recorded against them (₹{s['official_amount_cr']:.0f} cr) — about **1 loan per "
-    f"{s['cards_per_loan']:,} cards** ({rate}%). On the official numerator, the {verdict}.")
+# ---------------------------------------------------------------- headline
+vetted = s.get("numerator_vetted", False)
+k = st.columns(4)
+k[0].metric("Cards issued", f"{s['cards_total']:,}", help="Scraped census — vetted")
+k[1].metric("Villages", f"{s['villages_total']:,}")
+if vetted:
+    k[2].metric("Loans against cards", f"{s['official_loans']:,}",
+                help=f"as on {s['official_as_of']}")
+    k[3].metric("Uptake rate", f"{s['uptake_rate_pct']}%")
+    st.warning(
+        f"Of **{s['cards_total']:,}** cards issued, **{s['official_loans']:,}** loans are recorded "
+        f"against them — about **1 loan per {s['cards_per_loan']:,} cards** ({s['uptake_rate_pct']}%).")
+else:
+    k[2].metric("Loans against cards (MP)", "not vetted")
+    k[3].metric("Uptake rate", "—")
+    st.info(
+        "**MP loan figure removed as unverified.** The only state-wise loan number available "
+        "traced to a single secondary report with an unresolved House attribution and no retrievable "
+        "primary document, so it has been pulled from this dashboard. What remains below is **directly "
+        "vetted**: the card census (scraped from svamitva.nic.in) and the sampling method. The loan "
+        "numerator will return once it is confirmed against a primary source or the RoR sample.")
+    nc = s.get("national_context")
+    if nc:
+        st.caption(
+            f"National context only (not an MP figure): the Ministry of Panchayati Raj reported "
+            f"**{nc['loans']:,} loans / ₹{nc['amount_cr']:.0f} cr** nationwide against SVAMITVA cards, "
+            f"as on {nc['as_of']} ([wire report]({nc['url']})).")
 
 st.divider()
 
@@ -150,17 +161,23 @@ st.download_button("Download this view (CSV)", vshow.to_csv(index=False).encode(
                    file_name=f"svamitva_{dsel}_{bsel}.csv", mime="text/csv")
 
 # ---------------------------------------------------------------- method / limits
+nc = s.get("national_context")
+num_line = (f"- **Numerator (L2)** — {s['official_loans']:,} loans / ₹{s['official_amount_cr']:.2f} cr, "
+            f"as on {s['official_as_of']} ([source]({s['official_source_url']}))."
+            if vetted else
+            "- **Numerator (L2)** — *removed as unverified.* No vetted MP loan figure exists; the "
+            "only state-wise number came from a single secondary report and was pulled."
+            + (f" National context (not MP): {nc['loans']:,} loans / ₹{nc['amount_cr']:.0f} cr, "
+               f"as on {nc['as_of']} ([wire]({nc['url']}))." if nc else ""))
 with st.expander("Method, sources & limits"):
     st.markdown(f"""
 - **Denominator (L1)** — {s['cards_total']:,} cards across {s['villages_total']:,} villages,
-  scraped from svamitva.nic.in (state 23), keyed by LGD village code.
-- **Numerator (L2)** — {s['official_loans']:,} loans / ₹{s['official_amount_cr']:.2f} cr against
-  SVAMITVA cards, Lok Sabha / Ministry of Panchayati Raj, as on {s['official_as_of']}
-  ([source]({s['official_source_url']})).
+  scraped from svamitva.nic.in (state 23), keyed by LGD village code. **Directly vetted.**
+{num_line}
 - **Sample (L3)** — RoR column 11 (बंधक/दृष्टिबंधक/भू-ऋण) for a 396-village stratified holdout
-  (95% CI, ±5%); aggregate-only, **no owner PII stored**.
-- **Bracketing** — RoR encumbrance = *any* charge (upper bound); official loans = *card-backed*
-  (precise). Report both; don't force one number.
+  (95% CI, ±5%); aggregate-only, **no owner PII stored**. Not yet collected.
+- **What counts as vetted here** — only figures scraped directly or confirmed against a primary/
+  wire source. Provisional secondary numbers are excluded from the headline, not shown as fact.
 - **Limits** — per-parcel RoR is captcha/replay-gated → sample not census; district-wise official
   loans are unpublished; "specimen copy" data is real but legally non-usable.
 """)
