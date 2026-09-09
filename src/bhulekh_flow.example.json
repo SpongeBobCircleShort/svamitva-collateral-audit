@@ -1,0 +1,33 @@
+{
+  "_comment": "Fill this from the bhulekh_discover.py output, then pass with --flow. Placeholders in <angle brackets>.",
+  "base_url": "https://mpbhulekh.gov.in",
+  "verify_tls": false,
+
+  "record_request": {
+    "_comment": "The POST that returns one village's abadi/B-1 holder list. {lgd_village_code}, {district_code}, {tehsil_code}, {village_code} are substituted.",
+    "method": "POST",
+    "url": "<https://mpbhulekh.gov.in/.../getB1OrKhasra.aspx>",
+    "content_type": "application/x-www-form-urlencoded",
+    "body_template": "<param_district>={district_code}&<param_tehsil>={tehsil_code}&<param_village>={village_code}&recordType=B1&landType=ABADI"
+  },
+
+  "response_kind": "html",
+
+  "encumbrance": {
+    "_comment": "How to detect a loan on a parcel row. keywords match the column header; a row counts as encumbered if that cell is non-empty and not in empty_values.",
+    "keywords": ["ऋण", "बंधक", "encumbrance", "mortgage", "loan"],
+    "amount_keywords": ["राशि", "amount", "ऋण राशि"],
+    "empty_values": ["", "-", "0", "निरंժ", "शून्य", "N/A", "NA", "null", "None"]
+  },
+
+  "abadi_filter": {
+    "_comment": "Optional: how to keep only abadi/SVAMITVA parcels if the response mixes land types.",
+    "column_keywords": ["भू-प्रकार", "land type", "type"],
+    "abadi_values": ["आबादी", "abadi", "svamitva", "स्वामित्व"]
+  },
+
+  "captcha": {
+    "present": false,
+    "_comment": "If true, bhulekh_scraper pauses and asks you to solve it in a headed browser session."
+  }
+}

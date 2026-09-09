@@ -1,0 +1,6 @@
+# Full pipeline (scrapers + sampler). Install locally, not needed to run the dashboard.
+-r requirements.txt
+requests>=2.31
+playwright>=1.40          # then: python -m playwright install chromium
+Pillow>=10.0             # optional OCR for ror_sampler
+pytesseract>=0.3.10      # optional OCR (needs the tesseract binary)

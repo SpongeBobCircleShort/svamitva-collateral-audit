@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+src/.bhulekh_token
+data/*.sqlite
+data/bhulekh_discovery/
+data/*.log
+.DS_Store
+src/.bhulekh_curl.txt
+src/.bhulekh_rid
+data/ror_request.json
+data/ror_schema.txt
+data/captcha.png

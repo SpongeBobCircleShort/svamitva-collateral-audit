@@ -1,0 +1,5 @@
+# Streamlit app runtime (what Streamlit Community Cloud installs)
+streamlit>=1.30
+pandas>=2.0
+numpy>=1.24
+pyarrow>=14
