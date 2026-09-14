@@ -26,9 +26,9 @@ import argparse
 import pandas as pd
 
 try:
-    from bhulekh_api import BhulekhClient
+    from bhulekh_api import BhulekhClient, _pick
 except ImportError:
-    from src.bhulekh_api import BhulekhClient
+    from src.bhulekh_api import BhulekhClient, _pick
 
 LOAN_KW = ["विल्लंगम", "बंधक", "दृष्टिबंधक", "भू-ऋण", "ऋण", "प्रभार",
            "vilangam", "bandhak", "rin", "loan", "mortgage", "encumbrance", "charge"]
@@ -138,12 +138,14 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
 
         checked = withloan = 0
         for p in plots:
+            pid = p["property_id"]
             try:
-                resp = client.ror_detail(rdid, rtid, lgd, p["property_id"], extra=captcha)
+                yr = _pick(client.years(pid), "publish_year", "year")
+                ver = _pick(client.versions(pid, yr), "version", "ror_version") if yr else None
+                resp = client.ror_detail(pid, yr, ver, extra=captcha)
             except Exception as e:  # noqa: BLE001
                 if "captcha" in str(e).lower():
-                    captcha = _solve_captcha(client)
-                    continue
+                    captcha = _solve_captcha(client)   # refresh and retry this plot next pass
                 continue
             s, w, _ = _count_encumbrance(resp)
             checked += s or 1

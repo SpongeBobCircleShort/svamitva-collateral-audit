@@ -33,7 +33,8 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 BASE = "https://webgis2.mpbhulekh.gov.in"
-ROR = BASE + "/certifiedcopy/ror/v1/public"
+ROR = BASE + "/certifiedcopy/ror/v1/public"          # ccAabadiAdhikar (abadi hierarchy + ror-detail)
+ADHIKAR = BASE + "/certifiedcopy/ror/webgis/v1/public"  # ccAdhikar (property/year + property/version)
 APP_V = "1.1.137"
 
 
@@ -101,18 +102,21 @@ class BhulekhClient:
                     return txt.strip()
         return None
 
-    def _post(self, path: str, payload: dict) -> dict:
-        r = self.s.post(ROR + path, json={"tenant_id": "gov.in", **payload},
-                        headers={"qp-tc-request-id": self.rid},
-                        timeout=self.timeout, verify=False)
-        if r.status_code == 403 and self.rid:  # id likely expired -> re-mint once
+    def _post_to(self, url: str, payload: dict) -> dict:
+        def go():
+            return self.s.post(url, json={"tenant_id": "gov.in", **payload},
+                               headers={"qp-tc-request-id": self.rid},
+                               timeout=self.timeout, verify=False)
+        r = go()
+        if r.status_code == 403 and self.rid:      # id expired -> re-mint once
             self.rid = mint_request_id()
-            r = self.s.post(ROR + path, json={"tenant_id": "gov.in", **payload},
-                            headers={"qp-tc-request-id": self.rid},
-                            timeout=self.timeout, verify=False)
+            r = go()
         if not r.ok:
-            raise RuntimeError(f"{r.status_code} {path} -> {r.text[:400]}")
+            raise RuntimeError(f"{r.status_code} {url.rsplit('/',1)[-1]} -> {r.text[:400]}")
         return r.json()
+
+    def _post(self, path: str, payload: dict) -> dict:
+        return self._post_to(ROR + path, payload)
 
     # ---- confirmed hierarchy ------------------------------------------------
     def districts(self) -> list[dict]:
@@ -130,15 +134,49 @@ class BhulekhClient:
                                      "ror_tehsil_id": str(ror_tehsil_id),
                                      "lgd_code": str(lgd_code)}).get("data", [])
 
-    def ror_detail(self, ror_district_id, ror_tehsil_id, lgd_code, property_id,
-                   extra: dict | None = None) -> dict:
-        payload = {"ror_district_id": str(ror_district_id),
-                   "ror_tehsil_id": str(ror_tehsil_id),
-                   "lgd_code": str(lgd_code),
-                   "property_id": str(property_id)}
+    # ---- ror-detail flow: property -> year -> version -> record --------------
+    # property/year|version live under ccAdhikar in the bundle, but abadi parcels may
+    # resolve under ccAabadiAdhikar; try the abadi base first, fall back to webgis.
+    _YV_BASES = (ROR, ADHIKAR)
+
+    def _yv(self, path: str, payload: dict) -> list:
+        last = None
+        for base in self._YV_BASES:
+            try:
+                return self._post_to(base + path, payload).get("data", [])
+            except RuntimeError as e:
+                last = e
+                if "No record found" in str(e) or "120001" in str(e):
+                    continue          # wrong base for this parcel — try the next
+                raise
+        raise last
+
+    def years(self, property_id) -> list:
+        return self._yv("/property/year", {"property_id": str(property_id)})
+
+    def versions(self, property_id, publish_year) -> list:
+        return self._yv("/property/version",
+                        {"property_id": str(property_id), "publish_year": publish_year})
+
+    def ror_detail(self, property_id, publish_year, version, extra: dict | None = None) -> dict:
+        payload = {"property_id": str(property_id),
+                   "publish_year": publish_year, "version": version}
         if extra:
             payload.update(extra)
         return self._post("/ror-detail", payload)
+
+
+def _pick(items, *keys):
+    """Latest value from a year/version list; items may be scalars or dicts."""
+    if not items:
+        return None
+    first = items[0]
+    if isinstance(first, dict):
+        for k in keys:
+            if k in first:
+                return first[k]
+        return next(iter(first.values()))
+    return first
 
 
 if __name__ == "__main__":
