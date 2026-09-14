@@ -118,6 +118,19 @@ class BhulekhClient:
     def _post(self, path: str, payload: dict) -> dict:
         return self._post_to(ROR + path, payload)
 
+    def _post_text(self, url: str, payload: dict) -> str:
+        def go():
+            return self.s.post(url, json={"tenant_id": "gov.in", **payload},
+                               headers={"qp-tc-request-id": self.rid, "accept": "text/html"},
+                               timeout=self.timeout, verify=False)
+        r = go()
+        if r.status_code == 403 and self.rid:
+            self.rid = mint_request_id()
+            r = go()
+        if not r.ok:
+            raise RuntimeError(f"{r.status_code} html -> {r.text[:200]}")
+        return r.text
+
     # ---- confirmed hierarchy ------------------------------------------------
     def districts(self) -> list[dict]:
         return self._post("/district", {}).get("data", [])
@@ -170,6 +183,18 @@ class BhulekhClient:
         if extra:
             payload.update(extra)
         return self._post("/ror-detail", payload)
+
+    def ror_html(self, ror_district_id, ror_tehsil_id, lgd_code, clr_plot_no,
+                 property_id, search_type="PLOT") -> str:
+        """The rendered RoR (प्ररूप तीन) HTML — the ONLY view carrying col 11
+        (भूमि पर विल्लंगम/बंधक/दृष्टिबंधक/भू-ऋण). The ror-detail JSON omits it."""
+        return self._post_text(ROR + "/html",
+                               {"ror_district_id": str(ror_district_id),
+                                "ror_tehsil_id": str(ror_tehsil_id),
+                                "lgd_code": str(lgd_code),
+                                "clr_plot_no": clr_plot_no,
+                                "property_id": str(property_id),
+                                "search_type": search_type})
 
 
 def _pick(items, *keys):

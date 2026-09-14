@@ -31,7 +31,7 @@ except ImportError:
     from src.bhulekh_api import BhulekhClient, _pick
 
 # ror-detail needs a search_type; value confirmed from the browser payload (override via env).
-SEARCH_TYPE = os.environ.get("BHULEKH_SEARCH_TYPE", "plot")
+SEARCH_TYPE = os.environ.get("BHULEKH_SEARCH_TYPE", "PLOT")
 
 LOAN_KW = ["विल्लंगम", "बंधक", "दृष्टिबंधक", "भू-ऋण", "ऋण", "प्रभार",
            "vilangam", "bandhak", "rin", "loan", "mortgage", "encumbrance", "charge"]
@@ -86,32 +86,51 @@ def _solve_captcha(client: BhulekhClient) -> dict:
     return {"captcha": text, "captcha_id": cap_id}
 
 
-def _count_encumbrance(resp) -> tuple[int, int, str]:
-    """Given a ror-detail response, return (parcels_seen, parcels_with_loan, note).
-    FINALIZE-FROM-CAPTURE: point this at the exact col-11 field once ror_schema.txt is known.
-    Generic default: JSON rows -> loan-ish key non-empty; HTML -> encumbrance column cell."""
-    # JSON case
-    if isinstance(resp, (dict, list)):
-        data = resp.get("data", resp) if isinstance(resp, dict) else resp
-        rows = data if isinstance(data, list) else [data]
-        seen = with_loan = 0
-        for r in rows:
-            if not isinstance(r, dict):
+def col11_encumbered(html: str) -> tuple[int, int, str]:
+    """Parse the प्ररूप तीन RoR HTML → (parcels, parcels_with_loan, note).
+
+    Col 11 = भूमि पर विल्लंगम तथा प्रभार (encumbrance). Strategy: read the table whose
+    header numbering includes a "(11)" cell, take that column index, and count data rows
+    whose col-11 cell is non-empty. Returns note='no-col11' if the column can't be located
+    (so the caller records unknown, never a false zero)."""
+    import io
+    try:
+        import pandas as pd
+        tables = pd.read_html(io.StringIO(html))
+    except Exception:
+        tables = []
+    for t in tables:
+        # find the numbered header row that contains a lone "(11)"
+        col11 = None
+        for _, row in t.iterrows():
+            cells = [str(c).strip() for c in row.tolist()]
+            if any(c in ("(11)", "11", "(११)") for c in cells):
+                for idx, c in enumerate(cells):
+                    if c in ("(11)", "11", "(११)"):
+                        col11 = idx
+                break
+        if col11 is None:
+            continue
+        # data rows = numeric first cell (सरल क्रमांक); count non-empty col-11
+        parcels = with_loan = 0
+        for _, row in t.iterrows():
+            cells = [str(c).strip() for c in row.tolist()]
+            if col11 >= len(cells):
                 continue
-            seen += 1
-            lk = next((k for k in r if any(w in k.lower() for w in
-                       [x.lower() for x in LOAN_KW])), None)
-            if lk and str(r[lk]).strip().lower() not in EMPTY:
+            first = cells[0]
+            if not re.fullmatch(r"\d+", first):   # skip header/legend rows
+                continue
+            parcels += 1
+            val = cells[col11].strip().lower()
+            if val not in EMPTY and val != "nan":
                 with_loan += 1
-        return seen, with_loan, "json"
-    # HTML case
-    html = str(resp)
-    has = any(w in html for w in LOAN_KW)
-    # crude: encumbrance column non-empty if a loan keyword header exists and a value follows
-    return (1, 1 if (has and re.search(r"(बंधक|ऋण|mortgage)", html)) else 0, "html")
+        if parcels:
+            return parcels, with_loan, "col11"
+    # fallback: no parseable col-11 table
+    return 0, 0, "no-col11"
 
 
-def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
+def run(data_dir: str, limit: int | None, max_plots: int, delay: float, save_html: bool = False):
     wl_path = os.path.join(data_dir, "vet_worklist.csv")
     wl = pd.read_csv(wl_path)
     keycol = "lgd_code" if "lgd_code" in wl.columns else "lgd_village_code"
@@ -139,19 +158,24 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
             continue
 
         checked = withloan = 0
+        notes = set()
         for p in plots:
+            plot_no = p.get("clr_plot_no") or p.get("clr_plot_no_display")
             try:
-                resp = client.ror_detail(rdid, rtid, lgd,
-                                         p.get("clr_plot_no") or p.get("clr_plot_no_display"),
-                                         p["property_id"], search_type=SEARCH_TYPE)
+                html = client.ror_html(rdid, rtid, lgd, plot_no, p["property_id"], SEARCH_TYPE)
             except Exception:  # noqa: BLE001
                 continue
-            s, w, _ = _count_encumbrance(resp)
+            if save_html:
+                d = os.path.join(data_dir, "ror_html"); os.makedirs(d, exist_ok=True)
+                open(os.path.join(d, f"{lgd}_{p['property_id']}.html"), "w", encoding="utf-8").write(html)
+            s, w, note = col11_encumbered(html)
             checked += s or 1
             withloan += w
+            notes.add(note)
             time.sleep(delay)
 
-        wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [checked, withloan, ""]
+        note = "no-col11" if notes == {"no-col11"} else ""
+        wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [checked, withloan, note]
         wl.to_csv(wl_path, index=False)   # checkpoint after each village
         print(f"[{pos}/{len(todo)}] {dname}/{vname}: {withloan}/{checked} plots w/ loan")
 
@@ -164,5 +188,6 @@ if __name__ == "__main__":
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--max-plots", type=int, default=15)
     ap.add_argument("--delay", type=float, default=1.5)
+    ap.add_argument("--save-html", action="store_true", help="dump raw RoR HTML to data/ror_html/")
     a = ap.parse_args()
-    run(a.data_dir, a.limit, a.max_plots, a.delay)
+    run(a.data_dir, a.limit, a.max_plots, a.delay, a.save_html)
