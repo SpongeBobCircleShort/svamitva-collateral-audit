@@ -123,7 +123,9 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
 
     for pos, (i, row) in enumerate(todo.iterrows(), 1):
         lgd = str(row[keycol])
-        idx = _village_index(client, str(row["district_en"]), cache)
+        dname = str(row.get("district_en") or row.get("district") or "")
+        vname = str(row.get("village_en") or row.get("village") or lgd)
+        idx = _village_index(client, dname, cache)
         if lgd not in idx:
             wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [0, 0, "village not found on webgis2"]
             continue
@@ -150,8 +152,7 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
 
         wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [checked, withloan, ""]
         wl.to_csv(wl_path, index=False)   # checkpoint after each village
-        print(f"[{pos}/{len(todo)}] {row['district_en']}/{row['village_en']}: "
-              f"{withloan}/{checked} plots w/ loan")
+        print(f"[{pos}/{len(todo)}] {dname}/{vname}: {withloan}/{checked} plots w/ loan")
 
     print(f"\ndone. worklist updated -> {wl_path}")
 

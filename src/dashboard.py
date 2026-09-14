@@ -99,8 +99,9 @@ with c2:
                   f"{p*100:.2f}%", help="parcels with a loan on the RoR (col 11) ÷ parcels checked")
         st.caption(f"95% CI: {lo*100:.2f}% – {hi*100:.2f}%  ({withloan:,}/{checked:,} plots)")
     else:
-        st.info("Sample not collected yet. Run `python src/ror_sampler.py` (fills the 396-village "
-                "holdout from RoR column 11: बंधक / दृष्टिबंधक / भू-ऋण). Until then this stays "
+        frame = s.get("sample_frame", "sample frame")
+        st.info(f"Sample not collected yet. Run `python src/ror_sampler.py` to fill the **{target}-village "
+                f"{frame}** from RoR column 11 (बंधक / दृष्टिबंधक / भू-ऋण). Until then this stays "
                 "**unknown**, never zero.")
 
 # cross-check panel (only once estimator has run)
@@ -174,8 +175,8 @@ with st.expander("Method, sources & limits"):
 - **Denominator (L1)** — {s['cards_total']:,} cards across {s['villages_total']:,} villages,
   scraped from svamitva.nic.in (state 23), keyed by LGD village code. **Directly vetted.**
 {num_line}
-- **Sample (L3)** — RoR column 11 (बंधक/दृष्टिबंधक/भू-ऋण) for a 396-village stratified holdout
-  (95% CI, ±5%); aggregate-only, **no owner PII stored**. Not yet collected.
+- **Sample (L3)** — RoR column 11 (बंधक/दृष्टिबंधक/भू-ऋण) for the **MP one-village-per-district
+  frame** (55 districts, HQ-anchored); aggregate-only, **no owner PII stored**. Not yet collected.
 - **What counts as vetted here** — only figures scraped directly or confirmed against a primary/
   wire source. Provisional secondary numbers are excluded from the headline, not shown as fact.
 - **Limits** — per-parcel RoR is captcha/replay-gated → sample not census; district-wise official

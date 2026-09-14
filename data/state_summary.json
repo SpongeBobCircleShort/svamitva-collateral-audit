@@ -14,7 +14,8 @@
     "as_of": "2026-08-05",
     "url": "https://aninews.in/news/national/general-news/330-lakh-villages-mapped-under-svamitva-scheme-rs-1713-cr-loans-disbursed-using-property-cards20260805182142/"
   },
-  "sample_villages_target": 396,
+  "sample_villages_target": 55,
+  "sample_frame": "MP one-village-per-district (HQ-anchored)",
   "sample_villages_done": 0,
   "sample_plots_checked": 0,
   "sample_plots_with_loan": 0

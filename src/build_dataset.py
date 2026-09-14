@@ -42,6 +42,17 @@ def _read_sample(data_dir: str) -> pd.DataFrame:
     return w[cols] if len(w) else pd.DataFrame(columns=cols)
 
 
+def _worklist_frame(data_dir: str):
+    """(set of LGD codes in the sample frame, total frame size). From vet_worklist.csv."""
+    path = os.path.join(data_dir, "vet_worklist.csv")
+    if not os.path.exists(path):
+        return set(), 0
+    w = pd.read_csv(path)
+    key = "lgd_code" if "lgd_code" in w.columns else "lgd_village_code"
+    lgds = set(pd.to_numeric(w[key], errors="coerce").dropna().astype(int))
+    return lgds, len(w)
+
+
 def build(data_dir: str) -> None:
     cards = pd.read_parquet(os.path.join(data_dir, "svamitva_cards.parquet"))
 
@@ -55,11 +66,11 @@ def build(data_dir: str) -> None:
     # keep legacy output for train_test_split.py
     df.to_parquet(os.path.join(data_dir, "mp_svamitva.parquet"), index=False)
 
-    # attach split if it exists (train_test_split.py already ran)
-    split_path = os.path.join(data_dir, "test.parquet")
-    if os.path.exists(split_path):
-        test_codes = set(pd.read_parquet(split_path)["lgd_village_code"])
-        df["split"] = df["lgd_village_code"].map(lambda c: "test" if c in test_codes else "train")
+    # sample frame = the villages listed in vet_worklist.csv (MP one-per-district frame).
+    # Card villages in the frame are marked split="test"; the frame drives the sample target.
+    frame_lgds, frame_size = _worklist_frame(data_dir)
+    if frame_lgds:
+        df["split"] = df["lgd_village_code"].map(lambda c: "test" if c in frame_lgds else "train")
     df.to_parquet(os.path.join(data_dir, "mp_vetting.parquet"), index=False)
 
     # ---- district grain -----------------------------------------------------
@@ -116,7 +127,8 @@ def build(data_dir: str) -> None:
         "numerator_vetted": bool(mp),
         "national_context": ({"loans": nat["loans_count"], "amount_cr": nat["loan_amount_cr"],
                               "as_of": nat["as_of"], "url": nat["url"]} if nat else None),
-        "sample_villages_target": int((df.get("split") == "test").sum()) if "split" in df else 0,
+        "sample_villages_target": frame_size,
+        "sample_frame": "MP one-village-per-district (HQ-anchored)",
         "sample_villages_done": int(df["sampled"].sum()),
         "sample_plots_checked": int(df["plots_checked"].fillna(0).sum()) if "plots_checked" in df else 0,
         "sample_plots_with_loan": int(df["plots_with_loan"].fillna(0).sum()) if "plots_with_loan" in df else 0,
