@@ -30,6 +30,9 @@ try:
 except ImportError:
     from src.bhulekh_api import BhulekhClient, _pick
 
+# ror-detail needs a search_type; value confirmed from the browser payload (override via env).
+SEARCH_TYPE = os.environ.get("BHULEKH_SEARCH_TYPE", "plot")
+
 LOAN_KW = ["विल्लंगम", "बंधक", "दृष्टिबंधक", "भू-ऋण", "ऋण", "प्रभार",
            "vilangam", "bandhak", "rin", "loan", "mortgage", "encumbrance", "charge"]
 EMPTY = {"", "-", "0", "null", "none", "na", "n/a", "शून्य", "निरंक", "nil"}
@@ -119,7 +122,6 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
 
     client = BhulekhClient()
     cache: dict = {}
-    captcha = _solve_captcha(client)
 
     for pos, (i, row) in enumerate(todo.iterrows(), 1):
         lgd = str(row[keycol])
@@ -138,14 +140,11 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float):
 
         checked = withloan = 0
         for p in plots:
-            pid = p["property_id"]
             try:
-                yr = _pick(client.years(pid), "publish_year", "year")
-                ver = _pick(client.versions(pid, yr), "version", "ror_version") if yr else None
-                resp = client.ror_detail(pid, yr, ver, extra=captcha)
-            except Exception as e:  # noqa: BLE001
-                if "captcha" in str(e).lower():
-                    captcha = _solve_captcha(client)   # refresh and retry this plot next pass
+                resp = client.ror_detail(rdid, rtid, lgd,
+                                         p.get("clr_plot_no") or p.get("clr_plot_no_display"),
+                                         p["property_id"], search_type=SEARCH_TYPE)
+            except Exception:  # noqa: BLE001
                 continue
             s, w, _ = _count_encumbrance(resp)
             checked += s or 1

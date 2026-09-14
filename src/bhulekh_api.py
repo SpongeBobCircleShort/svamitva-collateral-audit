@@ -158,9 +158,15 @@ class BhulekhClient:
         return self._yv("/property/version",
                         {"property_id": str(property_id), "publish_year": publish_year})
 
-    def ror_detail(self, property_id, publish_year, version, extra: dict | None = None) -> dict:
-        payload = {"property_id": str(property_id),
-                   "publish_year": publish_year, "version": version}
+    def ror_detail(self, ror_district_id, ror_tehsil_id, lgd_code, clr_plot_no,
+                   property_id, search_type="plot", extra: dict | None = None) -> dict:
+        # Confirmed contract (capture_ror): no captcha, no year/version.
+        payload = {"ror_district_id": str(ror_district_id),
+                   "ror_tehsil_id": str(ror_tehsil_id),
+                   "lgd_code": str(lgd_code),
+                   "clr_plot_no": clr_plot_no,
+                   "property_id": str(property_id),
+                   "search_type": search_type}
         if extra:
             payload.update(extra)
         return self._post("/ror-detail", payload)
