@@ -128,8 +128,8 @@ class BhulekhClient:
             self.rid = mint_request_id()
             r = go()
         if not r.ok:
-            raise RuntimeError(f"{r.status_code} html -> {r.text[:200]}")
-        return r.text
+            raise RuntimeError(f"{r.status_code} html -> {r.text[:500]}")
+        return r.content.decode("utf-8", errors="replace")   # server omits charset -> force UTF-8
 
     # ---- confirmed hierarchy ------------------------------------------------
     def districts(self) -> list[dict]:
@@ -185,15 +185,20 @@ class BhulekhClient:
         return self._post("/ror-detail", payload)
 
     def ror_html(self, ror_district_id, ror_tehsil_id, lgd_code, clr_plot_no,
-                 property_id, search_type="PLOT") -> str:
+                 property_id, khasra_no, owner_samagra_id, loc_id,
+                 search_type="PLOT") -> str:
         """The rendered RoR (प्ररूप तीन) HTML — the ONLY view carrying col 11
-        (भूमि पर विल्लंगम/बंधक/दृष्टिबंधक/भू-ऋण). The ror-detail JSON omits it."""
+        (भूमि पर विल्लंगम/बंधक/दृष्टिबंधक/भू-ऋण). The ror-detail JSON omits it.
+        Needs khasra_no / owner_samagra_id / loc_id, which come from ror_detail()."""
         return self._post_text(ROR + "/html",
                                {"ror_district_id": str(ror_district_id),
                                 "ror_tehsil_id": str(ror_tehsil_id),
                                 "lgd_code": str(lgd_code),
                                 "clr_plot_no": clr_plot_no,
                                 "property_id": str(property_id),
+                                "khasra_no": khasra_no,
+                                "owner_samagra_id": owner_samagra_id,
+                                "loc_id": loc_id,
                                 "search_type": search_type})
 
 

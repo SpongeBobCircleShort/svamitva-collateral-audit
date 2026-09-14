@@ -2,12 +2,12 @@ state,district,tehsil,village,lgd_code,district_hq,village_to_hq_km,in_card_cens
 Madhya Pradesh,Agar-Malwa,Agar,Mali Khedi,472521,AGAR MALWA,3.9,True,145.0,179.0,0.0,0.0,
 Madhya Pradesh,Alirajpur,Alirajpur,Lakhan Kot,505202,ALIRAJPUR,3.4,True,1.0,1.0,0.0,0.0,
 Madhya Pradesh,Anuppur,Anuppur,Dulhara,501933,ANUPPUR,2.4,True,8.0,8.0,0.0,0.0,
-Madhya Pradesh,Ashoknagar,Ashoknagar,Takneri,500366,ASHOKNAGAR,0.3,True,15.0,19.0,,,
-Madhya Pradesh,Balaghat,Balaghat,Bhatera,497747,BALAGHAT,3.0,False,,,,,
-Madhya Pradesh,Barwani,Barwani,Barwani Khurd,478005,Barwani,4.9,True,22.0,38.0,,,
-Madhya Pradesh,Betul,Betul,Parsodi Khurd,485667,BETUL,2.8,True,50.0,55.0,,,
-Madhya Pradesh,Bhind,Bhind Nagar,Mudiakhara,452910,BHIND,3.9,True,202.0,273.0,,,
-Madhya Pradesh,Bhopal,Huzur,Pipliya Bajkhan,482458,BHOPAL,10.1,True,74.0,80.0,,,
+Madhya Pradesh,Ashoknagar,Ashoknagar,Takneri,500366,ASHOKNAGAR,0.3,True,15.0,19.0,0.0,0.0,
+Madhya Pradesh,Balaghat,Balaghat,Bhatera,497747,BALAGHAT,3.0,False,,,0.0,0.0,"html err: 400 html -> {""type"":""error"",""status"":false,""req_id"":""fe875fea-1b2b-4c8a-ad5b-7ea7354fb62e"",""code"":""FST_ERR_VALIDATION"","""
+Madhya Pradesh,Barwani,Barwani,Barwani Khurd,478005,Barwani,4.9,True,22.0,38.0,0.0,0.0,"html err: 400 html -> {""type"":""error"",""status"":false,""req_id"":""6e50a4e9-5d7d-4188-bc12-4818b640b36e"",""code"":""FST_ERR_VALIDATION"","""
+Madhya Pradesh,Betul,Betul,Parsodi Khurd,485667,BETUL,2.8,True,50.0,55.0,0.0,0.0,"html err: 400 html -> {""type"":""error"",""status"":false,""req_id"":""ea7f3e79-a81a-47dc-9bc4-869455fad7a6"",""code"":""FST_ERR_VALIDATION"",""statusCode"":400,""message"":""Missing required property owner_samagra_id"",""message_ll"":""body must have required property 'owner_samagra_id', body must have required property 'khasra_no', body must have required property 'loc_id'"",""error"":null,""error_stack"":null,""exception"":null,""Exc"
+Madhya Pradesh,Bhind,Bhind Nagar,Mudiakhara,452910,BHIND,3.9,True,202.0,273.0,15.0,1.0,
+Madhya Pradesh,Bhopal,Huzur,Pipliya Bajkhan,482458,BHOPAL,10.1,True,74.0,80.0,15,0,
 Madhya Pradesh,Burhanpur,Burhanpur Nagar,Hamidpura,506176,BURHANPUR,2.0,True,38.0,76.0,,,
 Madhya Pradesh,Chhatarpur,Chhatarpur Nagar,Palotha,457927,CHHATARPUR,4.1,True,27.0,33.0,,,
 Madhya Pradesh,Chhindwara,Chhindwara,Dungariya,494889,CHHINDWARA,9.1,False,,,,,

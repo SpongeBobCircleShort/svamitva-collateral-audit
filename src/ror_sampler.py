@@ -89,44 +89,45 @@ def _solve_captcha(client: BhulekhClient) -> dict:
 def col11_encumbered(html: str) -> tuple[int, int, str]:
     """Parse the प्ररूप तीन RoR HTML → (parcels, parcels_with_loan, note).
 
-    Col 11 = भूमि पर विल्लंगम तथा प्रभार (encumbrance). Strategy: read the table whose
-    header numbering includes a "(11)" cell, take that column index, and count data rows
-    whose col-11 cell is non-empty. Returns note='no-col11' if the column can't be located
-    (so the caller records unknown, never a false zero)."""
+    The RoR data table has 12 columns (form cols 1-12). Col (11) = भूमि पर विल्लंगम तथा
+    प्रभार (encumbrance) = 0-based index 10; col (12) = remarks = index 11. Encumbrance
+    column located by header text (विल्लंगम/प्रभार) when present, else a numbered "(11)"
+    row, else index 10 of the 12-col table. Data rows = numeric first cell (सरल क्रमांक);
+    a parcel is encumbered if its col-11 cell is non-empty. note='no-col11' if not found
+    (recorded as unknown, never a false zero)."""
     import io
     try:
         import pandas as pd
         tables = pd.read_html(io.StringIO(html))
     except Exception:
-        tables = []
+        return 0, 0, "no-tables"
+
     for t in tables:
-        # find the numbered header row that contains a lone "(11)"
-        col11 = None
-        for _, row in t.iterrows():
-            cells = [str(c).strip() for c in row.tolist()]
-            if any(c in ("(11)", "11", "(११)") for c in cells):
-                for idx, c in enumerate(cells):
-                    if c in ("(11)", "11", "(११)"):
-                        col11 = idx
-                break
-        if col11 is None:
+        if t.shape[1] < 12:                     # RoR data table is 12-wide
             continue
-        # data rows = numeric first cell (सरल क्रमांक); count non-empty col-11
+        col = None
+        for i, c in enumerate(t.columns):       # header carries the column title?
+            s = str(c)
+            if "विल्लंगम" in s or "प्रभार" in s:
+                col = i; break
+        if col is None:                         # else a numbered "(11)" row
+            for _, row in t.iterrows():
+                cells = [str(c).strip() for c in row.tolist()]
+                if "(11)" in cells:
+                    col = cells.index("(11)"); break
+        if col is None:                         # else fixed position (form col 11)
+            col = 10
         parcels = with_loan = 0
         for _, row in t.iterrows():
             cells = [str(c).strip() for c in row.tolist()]
-            if col11 >= len(cells):
-                continue
-            first = cells[0]
-            if not re.fullmatch(r"\d+", first):   # skip header/legend rows
-                continue
+            if col >= len(cells) or not re.fullmatch(r"\d+", cells[0]):
+                continue                        # skip header/legend/metadata rows
             parcels += 1
-            val = cells[col11].strip().lower()
+            val = cells[col].strip().lower()
             if val not in EMPTY and val != "nan":
                 with_loan += 1
         if parcels:
             return parcels, with_loan, "col11"
-    # fallback: no parseable col-11 table
     return 0, 0, "no-col11"
 
 
@@ -134,6 +135,9 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float, save_htm
     wl_path = os.path.join(data_dir, "vet_worklist.csv")
     wl = pd.read_csv(wl_path)
     keycol = "lgd_code" if "lgd_code" in wl.columns else "lgd_village_code"
+    for c in ("plots_checked", "plots_with_loan", "encumbrance_notes"):
+        if c in wl.columns:
+            wl[c] = wl[c].astype(object)
     todo = wl[wl["plots_checked"].isna() | (wl["plots_checked"] == "")].copy()
     if limit:
         todo = todo.head(limit)
@@ -157,13 +161,28 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float, save_htm
             wl.loc[i, "encumbrance_notes"] = f"plot err: {str(e)[:80]}"
             continue
 
+        if not plots:
+            wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [0, 0, "no plots returned"]
+            wl.to_csv(wl_path, index=False)
+            print(f"[{pos}/{len(todo)}] {dname}/{vname}: no plots"); continue
+
         checked = withloan = 0
         notes = set()
+        err = ""
         for p in plots:
             plot_no = p.get("clr_plot_no") or p.get("clr_plot_no_display")
             try:
-                html = client.ror_html(rdid, rtid, lgd, plot_no, p["property_id"], SEARCH_TYPE)
-            except Exception:  # noqa: BLE001
+                det = client.ror_detail(rdid, rtid, lgd, plot_no, p["property_id"], SEARCH_TYPE)
+                d = det.get("data", {}) if isinstance(det, dict) else {}
+                rows = d.get("owner_detail") or d.get("land_detail") or []
+                if not rows:
+                    err = "ror-detail: no rows"; continue
+                r0 = rows[0]
+                html = client.ror_html(rdid, rtid, lgd, plot_no, p["property_id"],
+                                       r0.get("khasra_no"), r0.get("owner_samagra_id"),
+                                       r0.get("loc_id"), SEARCH_TYPE)
+            except Exception as e:  # noqa: BLE001
+                err = str(e)[:400]
                 continue
             if save_html:
                 d = os.path.join(data_dir, "ror_html"); os.makedirs(d, exist_ok=True)
@@ -174,10 +193,11 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float, save_htm
             notes.add(note)
             time.sleep(delay)
 
-        note = "no-col11" if notes == {"no-col11"} else ""
+        note = "no-col11" if notes == {"no-col11"} else ("" if checked else f"html err: {err}")
         wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [checked, withloan, note]
         wl.to_csv(wl_path, index=False)   # checkpoint after each village
-        print(f"[{pos}/{len(todo)}] {dname}/{vname}: {withloan}/{checked} plots w/ loan")
+        print(f"[{pos}/{len(todo)}] {dname}/{vname}: {withloan}/{checked} plots w/ loan"
+              f"  {('('+note+')') if note else ''}  [plots={len(plots)}]")
 
     print(f"\ndone. worklist updated -> {wl_path}")
 
