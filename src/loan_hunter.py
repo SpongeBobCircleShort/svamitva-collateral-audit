@@ -91,6 +91,8 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
     for pos, (_, v) in enumerate(cand.iterrows(), 1):
         dname = str(v["district_en"])
         vname = str(v.get("village_en") or v.get("village_hi") or "")
+        if dname not in cache:
+            print(f"  building {dname} village index...", flush=True)
         idx = _village_index(client, dname, cache)
         val = idx["by_lgd"].get(str(v["lgd_village_code"])) or idx["by_name"].get(_norm(vname))
         if not val:
@@ -102,9 +104,11 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
             print(f"[{pos}/{len(cand)}] {dname}/{vname}: plot err {str(e)[:80]}"); continue
         if plots_per_village:
             plots = plots[:plots_per_village]
+        print(f"[{pos}/{len(cand)}] {dname}/{vname} (lgd {lgd}): sweeping {len(plots)} plots...",
+              flush=True)
 
         rows, vchecked, vcharge = [], 0, 0
-        for p in plots:
+        for pi, p in enumerate(plots, 1):
             plot_no = p.get("clr_plot_no") or p.get("clr_plot_no_display")
             if (str(lgd), str(plot_no)) in seen:
                 continue
@@ -136,6 +140,8 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
                     print(f"    plot     : {plot_no}  parcel #{serial}")
                     print(f"    col-11   : {cell!r}\n")
             seen.add((str(lgd), str(plot_no)))
+            if vchecked and vchecked % 15 == 0:
+                print(f"      ...{pi}/{len(plots)} plots, {vcharge} charge so far", flush=True)
             time.sleep(delay)
 
         if rows:
@@ -176,5 +182,11 @@ if __name__ == "__main__":
                     help="print owner name + col-11 per parcel to match a known beneficiary (not stored)")
     a = ap.parse_args()
     dists = [d.strip() for d in a.districts.split(",")] if a.districts else None
-    hunt(a.data_dir, dists, a.villages, a.plots_per_village, a.delay, a.target_hits,
+    # breadth mode (no single village targeted): cap plots/village so the scan moves
+    # village-to-village fast and any charge surfaces early. Depth (all plots) when a
+    # specific --village is named (e.g. hunting one beneficiary's parcel).
+    ppv = a.plots_per_village
+    if ppv is None and not a.village:
+        ppv = 30
+    hunt(a.data_dir, dists, a.villages, ppv, a.delay, a.target_hits,
          a.village, a.show_owner)
