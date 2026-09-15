@@ -53,6 +53,24 @@ def _worklist_frame(data_dir: str):
     return lgds, len(w)
 
 
+def _raw_sample_totals(data_dir: str) -> dict:
+    """Ground-truth sample totals straight from the worklist — every village actually
+    sampled, including MP's new districts that post-date the card-census scrape and so
+    have no denominator row to join on. This is what the headline sample panel reports;
+    the stratified extrapolation stays on the census-matched subset (can't extrapolate a
+    rate onto cards that aren't in the denominator)."""
+    path = os.path.join(data_dir, "vet_worklist.csv")
+    if not os.path.exists(path):
+        return {"villages_done": 0, "plots_checked": 0, "plots_with_loan": 0}
+    w = pd.read_csv(path)
+    pc = pd.to_numeric(w.get("plots_checked"), errors="coerce").fillna(0)
+    pl = pd.to_numeric(w.get("plots_with_loan"), errors="coerce").fillna(0)
+    done = w[pc > 0]
+    return {"villages_done": int((pc > 0).sum()),
+            "plots_checked": int(pc.sum()),
+            "plots_with_loan": int(pl.sum())}
+
+
 def build(data_dir: str) -> None:
     cards = pd.read_parquet(os.path.join(data_dir, "svamitva_cards.parquet"))
 
@@ -113,6 +131,7 @@ def build(data_dir: str) -> None:
     # separately as clearly-labelled external context (not an MP verdict).
     mp = mp_state_total(data_dir)          # None -> MP numerator unvetted
     nat = national_context(data_dir)
+    raw = _raw_sample_totals(data_dir)     # full ground-truth sample (all sampled villages)
     cards_total = int(df["cards_distributed"].fillna(0).sum())
     loans = mp["loans_count"] if mp else None
     summary = {
@@ -129,9 +148,17 @@ def build(data_dir: str) -> None:
                               "as_of": nat["as_of"], "url": nat["url"]} if nat else None),
         "sample_villages_target": frame_size,
         "sample_frame": "MP one-village-per-district (HQ-anchored)",
-        "sample_villages_done": int(df["sampled"].sum()),
-        "sample_plots_checked": int(df["plots_checked"].fillna(0).sum()) if "plots_checked" in df else 0,
-        "sample_plots_with_loan": int(df["plots_with_loan"].fillna(0).sum()) if "plots_with_loan" in df else 0,
+        "sample_villages_done": raw["villages_done"],
+        "sample_plots_checked": raw["plots_checked"],
+        "sample_plots_with_loan": raw["plots_with_loan"],
+        # census-matched subset the stratified estimator can extrapolate onto
+        "sample_villages_matched": int(df["sampled"].sum()),
+        "sample_plots_matched": int(df["plots_checked"].fillna(0).sum()) if "plots_checked" in df else 0,
+        "sample_new_district_note": (
+            "12 villages lie in districts created after the card-census scrape (Maihar, "
+            "Maugauj, Pandhurna, Niwari, etc.); their parcels are counted in the ground-truth "
+            "sample but excluded from the card-based extrapolation."
+        ),
     }
     with open(os.path.join(data_dir, "state_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)

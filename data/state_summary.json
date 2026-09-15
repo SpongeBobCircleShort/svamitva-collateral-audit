@@ -16,7 +16,10 @@
   },
   "sample_villages_target": 55,
   "sample_frame": "MP one-village-per-district (HQ-anchored)",
-  "sample_villages_done": 33,
-  "sample_plots_checked": 456,
-  "sample_plots_with_loan": 0
+  "sample_villages_done": 51,
+  "sample_plots_checked": 1647,
+  "sample_plots_with_loan": 0,
+  "sample_villages_matched": 39,
+  "sample_plots_matched": 1244,
+  "sample_new_district_note": "12 villages lie in districts created after the card-census scrape (Maihar, Maugauj, Pandhurna, Niwari, etc.); their parcels are counted in the ground-truth sample but excluded from the card-based extrapolation."
 }
