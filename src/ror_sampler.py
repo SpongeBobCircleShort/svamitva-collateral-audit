@@ -141,6 +141,48 @@ def col11_encumbered(html: str) -> tuple[int, int, str]:
     return 0, 0, "no-col11"
 
 
+def col11_values(html: str) -> tuple[list[str], str]:
+    """Return the raw col-11 (encumbrance) cell text for EVERY data parcel in the RoR,
+    plus a note. Unlike col11_encumbered (which only counts non-empty), this exposes the
+    actual text so a hunt can see whether the column ever renders anything at all — a
+    charge, 'प्रक्रियाधीन' (under process), a court note, anything. Empty list + note if
+    the 12-col table isn't found."""
+    import io
+    try:
+        import pandas as pd
+        tables = pd.read_html(io.StringIO(html))
+    except Exception:
+        return [], "no-tables"
+    for t in tables:
+        if t.shape[1] < 12:
+            continue
+        col = None
+        for i, c in enumerate(t.columns):
+            s = str(c)
+            if "विल्लंगम" in s or "प्रभार" in s:
+                col = i; break
+        if col is None:
+            for _, row in t.iterrows():
+                cells = [str(c).strip() for c in row.tolist()]
+                if "(11)" in cells:
+                    col = cells.index("(11)"); break
+        if col is None:
+            col = 10
+        vals = []
+        for _, row in t.iterrows():
+            cells = [str(c).strip() for c in row.tolist()]
+            if col >= len(cells) or not re.fullmatch(r"\d+", cells[0]):
+                continue
+            vals.append(cells[col].strip())
+        if vals:
+            return vals, "col11"
+    return [], "no-col11"
+
+
+def _is_charge(v: str) -> bool:
+    return v.strip().lower() not in EMPTY and v.strip().lower() != "nan"
+
+
 def run(data_dir: str, limit: int | None, max_plots: int, delay: float, save_html: bool = False):
     wl_path = os.path.join(data_dir, "vet_worklist.csv")
     wl = pd.read_csv(wl_path)
