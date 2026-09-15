@@ -37,17 +37,33 @@ AUDIT_COLS = ["district_en", "village_en", "lgd", "clr_plot_no", "parcel_serial"
               "col11_text", "has_charge"]
 
 
-def _candidates(data_dir: str, districts: list[str] | None, n: int) -> pd.DataFrame:
+def _candidates(data_dir: str, districts: list[str] | None, n: int,
+                village: str | None = None) -> pd.DataFrame:
     """Largest abadi settlements first (by cards issued). Optionally restricted to
-    the named districts. One row per census village."""
+    the named districts and/or a village-name substring. One row per census village."""
     cards = pd.read_parquet(os.path.join(data_dir, "svamitva_cards.parquet"))
     cards = cards.copy()
     cards["cards_distributed"] = pd.to_numeric(cards["cards_distributed"], errors="coerce").fillna(0)
     if districts:
         want = {_norm(d) for d in districts}
         cards = cards[cards["district_en"].map(lambda x: _norm(x) in want)]
+    if village:
+        vq = _norm(village)
+        vcol = "village_en" if "village_en" in cards.columns else \
+            next(c for c in cards.columns if "village" in c)
+        cards = cards[cards[vcol].astype(str).map(lambda x: vq in _norm(x))]
     cards = cards.sort_values("cards_distributed", ascending=False)
     return cards.head(n)
+
+
+def _owner_name(r0: dict) -> str:
+    """First owner label present in a ror-detail row. Printed transiently for matching a
+    known beneficiary; NEVER written to the audit file."""
+    for k in ("owner_name", "owner_name_ll", "name", "name_ll", "khatedar_name", "owner"):
+        v = r0.get(k)
+        if v:
+            return str(v)
+    return ""
 
 
 def _seen(audit_path: str) -> set:
@@ -58,9 +74,10 @@ def _seen(audit_path: str) -> set:
 
 
 def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
-         delay: float, target_hits: int) -> None:
+         delay: float, target_hits: int, village: str | None = None,
+         show_owner: bool = False) -> None:
     audit_path = os.path.join(data_dir, "col11_audit.csv")
-    cand = _candidates(data_dir, districts, villages)
+    cand = _candidates(data_dir, districts, villages, village)
     print(f"candidate villages (largest-first): {len(cand)}  "
           f"| audit -> {audit_path}  | target hits: {target_hits}")
 
@@ -104,6 +121,9 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
             except Exception:  # noqa: BLE001
                 continue
             vals, _note = col11_values(html)
+            if show_owner:
+                oname = _owner_name(r0)
+                print(f"      plot {plot_no}: owner={oname!r}  col11={vals}")
             for serial, cell in enumerate(vals, 1):
                 charged = _is_charge(cell)
                 rows.append([dname, vname, lgd, plot_no, serial, cell, int(charged)])
@@ -151,6 +171,10 @@ if __name__ == "__main__":
     ap.add_argument("--plots-per-village", type=int, default=None, help="cap plots/village (default: all)")
     ap.add_argument("--delay", type=float, default=1.0)
     ap.add_argument("--target-hits", type=int, default=1, help="stop after this many charged parcels")
+    ap.add_argument("--village", default=None, help="focus a village-name substring (e.g. Handia)")
+    ap.add_argument("--show-owner", action="store_true",
+                    help="print owner name + col-11 per parcel to match a known beneficiary (not stored)")
     a = ap.parse_args()
     dists = [d.strip() for d in a.districts.split(",")] if a.districts else None
-    hunt(a.data_dir, dists, a.villages, a.plots_per_village, a.delay, a.target_hits)
+    hunt(a.data_dir, dists, a.villages, a.plots_per_village, a.delay, a.target_hits,
+         a.village, a.show_owner)
