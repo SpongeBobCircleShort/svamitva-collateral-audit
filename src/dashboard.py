@@ -95,9 +95,16 @@ with c1:
 with c2:
     if checked:
         p, lo, hi = wilson(withloan, checked)
-        st.metric("Sampled encumbrance rate",
-                  f"{p*100:.2f}%", help="parcels with a loan on the RoR (col 11) ÷ parcels checked")
-        st.caption(f"95% CI: {lo*100:.2f}% – {hi*100:.2f}%  ({withloan:,}/{checked:,} plots)")
+        st.metric("Sampled encumbrance rate", f"{p*100:.2f}%",
+                  help="parcels with a loan on the RoR (col 11) ÷ parcels checked")
+        st.caption(f"**{withloan:,} of {checked:,} parcels** across "
+                   f"{done} districts carried any loan/charge on record — 95% upper bound "
+                   f"**{hi*100:.2f}%**.")
+        if withloan == 0:
+            st.caption("⚠️ No encumbered parcel was observed in the sample, so this is an upper "
+                       "bound, not a proven positive: it is consistent with near-zero collateral "
+                       "use, but cannot rule out that the free RoR view omits col 11 for encumbered "
+                       "parcels. Note the national figure implies ~0.05% uptake — also near zero.")
     else:
         frame = s.get("sample_frame", "sample frame")
         st.info(f"Sample not collected yet. Run `python src/ror_sampler.py` to fill the **{target}-village "
