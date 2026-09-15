@@ -38,17 +38,27 @@ LOAN_KW = ["विल्लंगम", "बंधक", "दृष्टिबं
 EMPTY = {"", "-", "0", "null", "none", "na", "n/a", "शून्य", "निरंक", "nil"}
 
 
+def _norm(s) -> str:
+    return re.sub(r"\s+", " ", str(s or "").strip().lower())
+
+
 def _village_index(client: BhulekhClient, district_en: str, cache: dict) -> dict:
-    """lgd_code -> (ror_district_id, ror_tehsil_id) for one district (cached)."""
+    """Build {by_lgd, by_name} for one district (cached). Each maps to
+    (ror_district_id, ror_tehsil_id, webgis_lgd) so name-matched villages still
+    use webgis2's own lgd for downstream calls."""
     if district_en in cache:
         return cache[district_en]
-    idx = {}
+    by_lgd, by_name = {}, {}
+    dn = _norm(district_en).replace("-", " ")
     d = next((x for x in client.districts()
-              if x["district_name"].strip().upper() == district_en.strip().upper()), None)
+              if _norm(x["district_name"]).replace("-", " ") == dn), None)
     if d:
         for t in client.tehsils(d["district_id"]):
             for v in client.villages(d["district_id"], t["tehsil_id"]):
-                idx[str(v["lgd_code"])] = (v["ror_district_id"], v["ror_tehsil_id"])
+                val = (v["ror_district_id"], v["ror_tehsil_id"], str(v["lgd_code"]))
+                by_lgd[str(v["lgd_code"])] = val
+                by_name[_norm(v.get("village_name"))] = val
+    idx = {"by_lgd": by_lgd, "by_name": by_name}
     cache[district_en] = idx
     return idx
 
@@ -151,10 +161,12 @@ def run(data_dir: str, limit: int | None, max_plots: int, delay: float, save_htm
         dname = str(row.get("district_en") or row.get("district") or "")
         vname = str(row.get("village_en") or row.get("village") or lgd)
         idx = _village_index(client, dname, cache)
-        if lgd not in idx:
+        val = idx["by_lgd"].get(lgd) or idx["by_name"].get(_norm(vname))
+        if not val:
             wl.loc[i, ["plots_checked", "plots_with_loan", "encumbrance_notes"]] = [0, 0, "village not found on webgis2"]
+            wl.to_csv(wl_path, index=False)
             continue
-        rdid, rtid = idx[lgd]
+        rdid, rtid, lgd = val          # use webgis2's own lgd for downstream calls
         try:
             plots = client.plots(rdid, rtid, lgd)[:max_plots]
         except Exception as e:  # noqa: BLE001
@@ -206,7 +218,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-dir", default="data")
     ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--max-plots", type=int, default=15)
+    ap.add_argument("--max-plots", type=int, default=40)
     ap.add_argument("--delay", type=float, default=1.5)
     ap.add_argument("--save-html", action="store_true", help="dump raw RoR HTML to data/ror_html/")
     a = ap.parse_args()
