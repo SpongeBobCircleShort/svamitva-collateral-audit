@@ -252,11 +252,20 @@ footer a{color:var(--muted)}
     <div class="method">
       <h3>Reading the numbers honestly</h3>
       <ul>
-        <li><b>Uptake rate</b> = official card-backed loans ÷ cards issued. Precise, but a lower bound.</li>
-        <li><b>RoR encumbrance</b> counts <b>any</b> charge on the record (col 11) — an upper bound on
-          card-as-collateral. The truth is bracketed between the two; neither number is forced.</li>
-        <li>District-wise official loan counts are <b>not published</b> — only the state total exists.</li>
-        <li>RoR "specimen copy" data is real but legally non-usable; used for statistics only, no PII stored.</li>
+        <li><b>Where a mortgage would show</b> — the encumbrance field exists in exactly one form:
+          the abadi RoR <span class="deva">प्ररूप तीन</span> (Rule 6) col 11,
+          <span class="deva">भूमि पर विल्लंगम तथा प्रभार (बंधक / दृष्टिबंधक)</span>. The agricultural
+          khatauni <span class="deva">प्ररूप सात</span> (Rule 8) has <b>no mortgage column at all</b> —
+          its columns 10–14 are land-revenue arrears, interest and dues. So the SVAMITVA card record
+          is the only place card-collateral could appear.</li>
+        <li><b>What we found</b> — col 11 blank on every abadi parcel checked (frame sample + a
+          ~2,800-parcel positive-control search, including all 1,020 parcels of a PM-showcased loan
+          village). The <code>ror-detail</code> JSON has no charge field either.</li>
+        <li><b>Honest limit</b> — the free RoR is a watermarked <b>"specimen copy"</b> (not legal
+          evidence). We cannot rule out that col 11 is populated only in the paid digitally-signed
+          copy. So this is <b>"no encumbrance visible in the public record"</b>, not a proven zero.</li>
+        <li>Official card-backed loan counts are <b>not published</b> below the state level; the MP
+          state figure itself is unverified and withheld. Aggregate-only, no owner PII stored.</li>
       </ul>
     </div>
   </section>
@@ -373,6 +382,6 @@ var sb=document.getElementById('s-bar'); if(sb) sb.style.width=(done/tgt*100)+'%
 if(!n) return;
 function wil(p,n){var z=1.96,ph=p/n,d=1+z*z/n,c=ph+z*z/2/n,m=z*Math.sqrt(ph*(1-ph)/n+z*z/4/n/n);return[Math.max(0,(c-m)/d),Math.min(1,(c+m)/d)];}
 var hi=wil(w,n)[1];
-box.innerHTML='<b>'+w+' of '+n.toLocaleString('en-IN')+' abadi parcels</b> sampled across '+done+' districts carried any loan or charge on the land record — a rate of <b>'+(w/n*100).toFixed(2)+'%</b> (95% upper bound '+(hi*100).toFixed(2)+'%).'+(w===0?'<div class="natline">⚠️ No encumbered parcel was found in the sample, so this is an upper bound, not a proven positive: consistent with near-zero collateral use, but it cannot rule out that the free RoR view omits column 11 for encumbered parcels. The national figure implies ~0.05% uptake — also near zero.</div>':'')+(S.sample_villages_matched&&S.sample_villages_matched<done?'<div class="natline">'+(done-S.sample_villages_matched)+' of these villages lie in districts created after the card-census scrape (Maihar, Maugauj, Pandhurna, Niwari, etc.); their parcels count in this ground-truth rate but are excluded from the card-based extrapolation, which has no denominator for them.</div>':'');
+box.innerHTML='<b>'+w+' of '+n.toLocaleString('en-IN')+' abadi parcels</b> sampled across '+done+' districts carried any loan or charge in RoR column 11 — a rate of <b>'+(w/n*100).toFixed(2)+'%</b> (95% upper bound '+(hi*100).toFixed(2)+'%).'+(w===0?'<div class="natline"><b>Then a targeted positive-control search</b> checked ~2,800 more parcels — the largest settlements in 8 districts, and <b>every one of the 1,020 parcels in Handia</b> (Harda), a village the PM publicly showcased for a property-card loan. Still zero. The encumbrance column was verified as the correct one (प्ररूप तीन col 11: भूमि पर विल्लंगम तथा प्रभार · बंधक · दृष्टिबंधक), and the ror-detail JSON carries no charge field — so col 11 is the only place a mortgage could show. It never does.</div><div class="natline">⚠️ <b>Honest limit.</b> The free RoR is a watermarked "specimen copy". Two readings remain and cannot be separated without a paid digitally-signed copy: (1) abadi encumbrances are genuinely near-zero — cards not pledged, or the charge is never posted back to the record; or (2) the specimen view omits col 11. Either way, <b>the public land record cannot be used to confirm that a single SVAMITVA card is being used as collateral.</b></div>':'')+(S.sample_villages_matched&&S.sample_villages_matched<done?'<div class="natline">'+(done-S.sample_villages_matched)+' sampled villages lie in districts created after the card-census scrape (Maihar, Maugauj, Pandhurna, Niwari, etc.); their parcels count in this ground-truth rate but are excluded from the card-based extrapolation, which has no denominator for them.</div>':'');
 }catch(e){}})();
 </script>
