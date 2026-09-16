@@ -112,7 +112,7 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
         rows, vchecked, vcharge = [], 0, 0
         for pi, p in enumerate(plots, 1):
             plot_no = p.get("clr_plot_no") or p.get("clr_plot_no_display")
-            if (str(lgd), str(plot_no)) in seen:
+            if (str(lgd), str(plot_no)) in seen and not (debug and not dumped["done"]):
                 continue
             try:
                 det = client.ror_detail(rdid, rtid, lgd, plot_no, p["property_id"], SEARCH_TYPE)
