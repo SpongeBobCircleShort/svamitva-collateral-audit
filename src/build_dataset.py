@@ -163,6 +163,16 @@ def build(data_dir: str) -> None:
     with open(os.path.join(data_dir, "state_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
 
+    # L5 — main-claim reconciliation (official numerator vs RoR ground truth). reconcile()
+    # reads the summary just written + known_loans.csv, so run it now and fold the block back in.
+    try:
+        from reconcile import reconcile
+    except ImportError:
+        from src.reconcile import reconcile
+    summary["reconciliation"] = reconcile(data_dir)
+    with open(os.path.join(data_dir, "state_summary.json"), "w") as f:
+        json.dump(summary, f, indent=2)
+
     print(f"villages={summary['villages_total']:,}  cards={cards_total:,}")
     print("MP loan numerator: " + (f"{loans:,} (VETTED)" if mp else "UNVETTED — excluded from verdict"))
     if nat:

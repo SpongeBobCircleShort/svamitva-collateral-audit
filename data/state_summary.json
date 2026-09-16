@@ -21,5 +21,40 @@
   "sample_plots_with_loan": 0,
   "sample_villages_matched": 39,
   "sample_plots_matched": 1244,
-  "sample_new_district_note": "12 villages lie in districts created after the card-census scrape (Maihar, Maugauj, Pandhurna, Niwari, etc.); their parcels are counted in the ground-truth sample but excluded from the card-based extrapolation."
+  "sample_new_district_note": "12 villages lie in districts created after the card-census scrape (Maihar, Maugauj, Pandhurna, Niwari, etc.); their parcels are counted in the ground-truth sample but excluded from the card-based extrapolation.",
+  "reconciliation": {
+    "cards_total": 4324175,
+    "official_national_vetted": {
+      "loans_count": 11147,
+      "loan_amount_cr": 1713.68,
+      "as_of": "2026-08-05",
+      "url": "https://aninews.in/news/national/general-news/330-lakh-villages-mapped-under-svamitva-scheme-rs-1713-cr-loans-disbursed-using-property-cards20260805182142/"
+    },
+    "official_mp_claimed": {
+      "loans_count": 2202,
+      "loan_amount_cr": 177.77,
+      "vetted": false,
+      "url": "https://kashmirlife.net/29-svamitva-backed-loans-worth-rs-3-97-crore-disbursed-in-jammu-kashmir-lok-sabha-told-447515/",
+      "as_of": "2026-08-05"
+    },
+    "record_charges_observed": 0,
+    "parcels_checked_frame": 1647,
+    "parcels_checked_targeted": 1020,
+    "parcels_checked_total": 2667,
+    "mp_claimed_uptake_pct": 0.0509,
+    "expected_charges_if_secured": 1.36,
+    "prob_observe_zero_if_secured": 0.257,
+    "known_case": {
+      "village": "Handia",
+      "lgd_code": 486852,
+      "beneficiary": "Pawan (PM interaction)",
+      "loan_amt_cr": 0.029,
+      "parcels_censused": 1020,
+      "charges_found": 0,
+      "url": "https://www.narendramodi.in/prime-minister-narendra-modi-s-interaction-with-svamitva-yojana-beneficiaries-of-madhya-pradesh-557731",
+      "note": "Pawan of Handia took Rs 2.90 lakh against his property card and rented a shop (PM interaction, Oct 2021). All 1,020 abadi parcels of Handia were censused via loan_hunter: 0 carried any charge in RoR col 11."
+    },
+    "collateral_nominal": true,
+    "verdict": "Official loans are claimed to exist, yet zero charges are registered across every abadi parcel checked \u2014 including a full census of a village with a documented loan. The card's loan is not recorded against its title: the collateral function is nominal, not reflected in the land record."
+  }
 }

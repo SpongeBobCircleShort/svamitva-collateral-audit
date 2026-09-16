@@ -116,6 +116,41 @@ with c2:
                 f"{frame}** from RoR column 11 (बंधक / दृष्टिबंधक / भू-ऋण). Until then this stays "
                 "**unknown**, never zero.")
 
+# ---------------------------------------------------------------- main-claim reconciliation
+rec = s.get("reconciliation")
+if rec:
+    st.divider()
+    st.subheader("Does the card actually secure the loan? (official claim vs the record)")
+    nat, mp = rec.get("official_national_vetted"), rec.get("official_mp_claimed")
+    r = st.columns(3)
+    r[0].metric("Cards issued (MP)", f"{rec['cards_total']:,}")
+    if mp:
+        tag = "vetted" if mp["vetted"] else "govt's claim, unvetted"
+        r[1].metric("Official MP loans", f"{mp['loans_count']:,}", help=tag)
+    r[2].metric("Charges on the record", f"{rec['record_charges_observed']}",
+                help=f"across {rec['parcels_checked_total']:,} abadi parcels")
+    if rec.get("collateral_nominal"):
+        st.error(
+            f"**The card's loan is not recorded against its title.** The government claims "
+            f"{(mp['loans_count'] if mp else nat['loans_count']):,} loans exist, yet **zero** charges "
+            f"are registered across **{rec['parcels_checked_total']:,}** abadi parcels checked — "
+            f"including a full census of Handia, where a loan is documented. The collateral function "
+            f"is **nominal**: it does not appear in the land record.")
+    kc = rec.get("known_case")
+    if kc:
+        st.markdown(
+            f"**Known case (decisive):** {kc['beneficiary']} took **₹{kc['loan_amt_cr']*100:.1f} lakh** "
+            f"against a property card in **{kc['village']}** "
+            f"([PM interaction]({kc['url']})) — yet **{kc['charges_found']} charges** appear across all "
+            f"**{kc['parcels_censused']:,}** parcels of that village.")
+    if rec.get("expected_charges_if_secured") is not None:
+        st.caption(
+            f"Power note: at MP's own claimed uptake ({rec['mp_claimed_uptake_pct']}%), a title-secured "
+            f"scenario would put ≈{rec['expected_charges_if_secured']} charges in {rec['parcels_checked_total']:,} "
+            f"random parcels (P(observe 0) = {rec['prob_observe_zero_if_secured']}). So the random sample "
+            f"alone is only suggestive — the **known-case census** is the decisive leg. Reconciliation "
+            f"measures charges *registered on title*; an off-record lien is itself the failure being vetted.")
+
 # cross-check panel (only once estimator has run)
 if "est_encumbered" in dist.columns and dist["est_encumbered"].notna().any():
     est_total = int(dist["est_encumbered"].sum())
