@@ -161,10 +161,11 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
     print(f"\nswept {len(a):,} parcels across {a['lgd'].nunique()} villages; "
           f"{len(nonblank)} with a non-blank col 11.")
     if nonblank.empty:
-        distinct = sorted(set(a["col11_text"].dropna().astype(str)))
-        print("col-11 was blank on EVERY parcel. Distinct raw values seen:", distinct[:10])
-        print("If this holds at scale, the free RoR view likely does not render col 11 — "
-              "the zero encumbrance rate is then a view limitation, not a proven absence.")
+        print("col-11 was blank on every parcel. NOTE: these are RANDOM parcels, so 0 is also "
+              "exactly what a genuine near-zero encumbrance rate looks like — this run alone "
+              "does NOT show the view suppresses col 11. Only a parcel independently KNOWN to be "
+              "mortgaged can distinguish 'genuinely unencumbered' from 'view hides the charge'. "
+              "Run:  python src/loan_hunter.py --districts HARDA --village Handia --show-owner")
     else:
         print(nonblank[["district_en", "village_en", "clr_plot_no", "col11_text"]].to_string(index=False))
 
