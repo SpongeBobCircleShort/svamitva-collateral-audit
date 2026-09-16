@@ -101,13 +101,15 @@ with c2:
                    f"{done} districts carried any loan/charge on record — 95% upper bound "
                    f"**{hi*100:.2f}%**.")
         if withloan == 0:
-            st.caption("⚠️ Zero across the frame sample **and** a ~2,800-parcel positive-control "
-                       "search (largest settlements + every parcel of a PM-showcased loan village). "
-                       "The encumbrance field exists only in the abadi RoR प्ररूप तीन col 11 "
-                       "(विल्लंगम/बंधक); the agricultural khatauni प्ररूप सात has no mortgage column, "
-                       "and ror-detail JSON carries no charge field. **Limit:** the free RoR is a "
-                       "'specimen copy' — col 11 may be populated only in the paid signed copy, so "
-                       "this is 'no encumbrance visible in the public record', not a proven zero.")
+            st.caption("Zero across the frame sample **and** a ~2,800-parcel positive-control search "
+                       "(largest settlements + every parcel of a PM-showcased loan village). The "
+                       "encumbrance field exists only in the abadi RoR प्ररूप तीन col 11 (विल्लंगम/बंधक); "
+                       "the agricultural khatauni प्ररूप सात has no mortgage column, and ror-detail JSON "
+                       "carries no charge field. The 'specimen copy' watermark is a legal-admissibility "
+                       "disclaimer, **not** a data redaction — the signed copy renders the same fields — "
+                       "so this is a **real zero: no sampled abadi parcel carries a registered "
+                       "encumbrance.** Only caveat: col 11 shows charges *registered on the record*; a "
+                       "loan never filed back to the title is itself the failure being vetted.")
     else:
         frame = s.get("sample_frame", "sample frame")
         st.info(f"Sample not collected yet. Run `python src/ror_sampler.py` to fill the **{target}-village "
