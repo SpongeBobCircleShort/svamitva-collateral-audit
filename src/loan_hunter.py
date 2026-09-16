@@ -82,7 +82,7 @@ def _seen(audit_path: str) -> set:
 
 def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
          delay: float, target_hits: int, village: str | None = None,
-         show_owner: bool = False, debug: bool = False) -> None:
+         show_owner: bool = False, debug: bool = False, match: str | None = None) -> None:
     import json as _json
     dumped = {"done": False}
     audit_path = os.path.join(data_dir, "col11_audit.csv")
@@ -148,8 +148,11 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
                 print(f"raw HTML saved -> {hp}  (inspect col 11 by hand)")
                 print("=== END DEBUG ===\n")
             govt = _is_govt(base[0])
-            if show_owner:
-                oname = _owner_name(base[0])
+            oname = _owner_name(base[0]) if (show_owner or match) else ""
+            if match and _norm(match) in _norm(oname):
+                print(f"  >>> OWNER MATCH: plot {plot_no}  owner={oname!r}  "
+                      f"{'[GOVT] ' if govt else ''}col11={vals}", flush=True)
+            elif show_owner:
                 tag = " [GOVT]" if govt else ""
                 print(f"      plot {plot_no}: owner={oname!r}{tag}  col11={vals}")
             if govt:
@@ -210,6 +213,8 @@ if __name__ == "__main__":
                     help="print owner name + col-11 per parcel to match a known beneficiary (not stored)")
     ap.add_argument("--debug", action="store_true",
                     help="on the first parcel, dump ror-detail JSON keys + save raw RoR HTML, then continue")
+    ap.add_argument("--match", default=None,
+                    help="flag parcels whose owner name contains this substring (e.g. पवन)")
     a = ap.parse_args()
     dists = [d.strip() for d in a.districts.split(",")] if a.districts else None
     # breadth mode (no single village targeted): cap plots/village so the scan moves
@@ -219,4 +224,4 @@ if __name__ == "__main__":
     if ppv is None and not a.village:
         ppv = 30
     hunt(a.data_dir, dists, a.villages, ppv, a.delay, a.target_hits,
-         a.village, a.show_owner, a.debug)
+         a.village, a.show_owner, a.debug, a.match)
