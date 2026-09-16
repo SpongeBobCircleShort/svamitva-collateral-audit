@@ -57,13 +57,20 @@ def _candidates(data_dir: str, districts: list[str] | None, n: int,
 
 
 def _owner_name(r0: dict) -> str:
-    """First owner label present in a ror-detail row. Printed transiently for matching a
-    known beneficiary; NEVER written to the audit file."""
-    for k in ("owner_name", "owner_name_ll", "name", "name_ll", "khatedar_name", "owner"):
-        v = r0.get(k)
-        if v:
-            return str(v)
-    return ""
+    """Owner label from a ror-detail row (owner_first/middle/last). Printed transiently for
+    matching a known beneficiary; NEVER written to the audit file."""
+    parts = [r0.get("owner_first_name"), r0.get("owner_middle_name"), r0.get("owner_last_name")]
+    return " ".join(str(p) for p in parts if p).strip()
+
+
+def _is_govt(r0: dict) -> bool:
+    """True for state/institutional parcels (never mortgageable) — excluded from the
+    private-abadi denominator."""
+    lt = str(r0.get("land_type_en") or "").lower()
+    ot = str(r0.get("ownership_name_en") or "").lower()
+    name = str(r0.get("owner_first_name") or "")
+    return ("government" in lt or "shaskiya" in ot or "शासन" in name
+            or "शासकीय" in str(r0.get("ownership_name_ll") or ""))
 
 
 def _seen(audit_path: str) -> set:
@@ -140,9 +147,14 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
                 print("col11_values parsed:", vals, "note:", _note)
                 print(f"raw HTML saved -> {hp}  (inspect col 11 by hand)")
                 print("=== END DEBUG ===\n")
+            govt = _is_govt(base[0])
             if show_owner:
-                oname = _owner_name(r0)
-                print(f"      plot {plot_no}: owner={oname!r}  col11={vals}")
+                oname = _owner_name(base[0])
+                tag = " [GOVT]" if govt else ""
+                print(f"      plot {plot_no}: owner={oname!r}{tag}  col11={vals}")
+            if govt:
+                seen.add((str(lgd), str(plot_no)))
+                continue                       # state/institutional land can't be mortgaged
             for serial, cell in enumerate(vals, 1):
                 charged = _is_charge(cell)
                 rows.append([dname, vname, lgd, plot_no, serial, cell, int(charged)])
