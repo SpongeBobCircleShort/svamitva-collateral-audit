@@ -75,7 +75,9 @@ def _seen(audit_path: str) -> set:
 
 def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
          delay: float, target_hits: int, village: str | None = None,
-         show_owner: bool = False) -> None:
+         show_owner: bool = False, debug: bool = False) -> None:
+    import json as _json
+    dumped = {"done": False}
     audit_path = os.path.join(data_dir, "col11_audit.csv")
     cand = _candidates(data_dir, districts, villages, village)
     print(f"candidate villages (largest-first): {len(cand)}  "
@@ -125,6 +127,19 @@ def hunt(data_dir: str, districts, villages: int, plots_per_village: int | None,
             except Exception:  # noqa: BLE001
                 continue
             vals, _note = col11_values(html)
+            if debug and not dumped["done"]:
+                dumped["done"] = True
+                hp = os.path.join(data_dir, "ror_debug.html")
+                open(hp, "w", encoding="utf-8").write(html)
+                print("\n=== DEBUG: first parcel ===")
+                print("ror-detail data keys:", list(d.keys()))
+                print("owner_detail[0] keys:", list(base[0].keys()))
+                print("owner_detail[0] json:", _json.dumps(base[0], ensure_ascii=False)[:1200])
+                if d.get("land_detail"):
+                    print("land_detail[0] json:", _json.dumps(d["land_detail"][0], ensure_ascii=False)[:1200])
+                print("col11_values parsed:", vals, "note:", _note)
+                print(f"raw HTML saved -> {hp}  (inspect col 11 by hand)")
+                print("=== END DEBUG ===\n")
             if show_owner:
                 oname = _owner_name(r0)
                 print(f"      plot {plot_no}: owner={oname!r}  col11={vals}")
@@ -181,6 +196,8 @@ if __name__ == "__main__":
     ap.add_argument("--village", default=None, help="focus a village-name substring (e.g. Handia)")
     ap.add_argument("--show-owner", action="store_true",
                     help="print owner name + col-11 per parcel to match a known beneficiary (not stored)")
+    ap.add_argument("--debug", action="store_true",
+                    help="on the first parcel, dump ror-detail JSON keys + save raw RoR HTML, then continue")
     a = ap.parse_args()
     dists = [d.strip() for d in a.districts.split(",")] if a.districts else None
     # breadth mode (no single village targeted): cap plots/village so the scan moves
@@ -190,4 +207,4 @@ if __name__ == "__main__":
     if ppv is None and not a.village:
         ppv = 30
     hunt(a.data_dir, dists, a.villages, ppv, a.delay, a.target_hits,
-         a.village, a.show_owner)
+         a.village, a.show_owner, a.debug)
