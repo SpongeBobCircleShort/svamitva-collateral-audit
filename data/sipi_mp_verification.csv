@@ -1,0 +1,17 @@
+district,tehsil,village,survey_no,manual_textual,auto_textual,textual_match,manual_joint,auto_joint,joint_match,manual_spatial,owners_on_record,govt_land,note
+Agar-Malwa,Agar,Mali Khedi,50 (P)-302(B),Y,Y,OK,N,N,OK,,1,N,spatial not auto-checked (map endpoint)
+Agar-Malwa,Agar,Guru Khedi,50-208,Y,Y,OK,N,N,OK,,1,N,spatial not auto-checked (map endpoint)
+Agar-Malwa,Soyatkala,Ganeshpura,50-395,Y,Y,OK,Y,Y,OK,,2,N,spatial not auto-checked (map endpoint)
+Agar-Malwa,Soyatkala,Bhawanipura,50-130/4/2,Y,Y,OK,N,NA,MISMATCH,,1,Y,spatial not auto-checked (map endpoint)
+Alirajpur,Alirajpur,Lakhan Kot,nan,N,,,N,,,,,,"err: 400 ror-detail -> {""code"":120001,""message"":""No record found."",""message_ll"":""कोई "
+Alirajpur,Alirajpur,Ramsingh Ki Choki,50-876,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Alirajpur,Jobat,Khutaja,16-203/3,Y,Y,OK,N,N,OK,,1,Y,spatial not auto-checked (map endpoint)
+Alirajpur,Jobat,Chhotaguda,2-92,Y,Y,OK,N,NA,MISMATCH,,1,Y,spatial not auto-checked (map endpoint)
+Anuppur,Anuppur,Dulhara,16-409/1/2,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Anuppur,Anuppur,Kusumhai,13-37/1/1/2,Y,N,MISMATCH,N,,,,,,village not found on webgis2
+Anuppur,Kotma,Sakola,30-2354,Y,Y,OK,N,N,OK,,1,N,spatial not auto-checked (map endpoint)
+Anuppur,Kotma,Pakariya,nan,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Ashoknagar,Ashoknagar,Takneri,29-245,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Ashoknagar,Ashoknagar,Shankarpur,48-186,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Ashoknagar,Mungaoli,Karra,36-193,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Ashoknagar,Mungaoli,Bandhi,3-67,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "

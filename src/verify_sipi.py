@@ -143,8 +143,20 @@ def run(sheet: str, data_dir: str, limit: int | None, delay: float):
     else:
         results = []
 
-    client = BhulekhClient()
+    client = BhulekhClient(timeout=45)
     cache: dict = {}
+
+    def _retry(fn, tries=3):
+        last = None
+        for i in range(tries):
+            try:
+                return fn()
+            except Exception as e:  # noqa: BLE001
+                last = e
+                if "No record found" in str(e) or "120001" in str(e):
+                    raise                       # definitive, don't retry
+                time.sleep(1.5 * (i + 1))
+        raise last
 
     for pos, (_, row) in enumerate(mp.iterrows(), 1):
         dist = str(row[cmap["district"]]).strip()
@@ -168,38 +180,51 @@ def run(sheet: str, data_dir: str, limit: int | None, delay: float):
                 cands = idx["vil"].get(_norm(vil), [])
                 v = cands[0] if cands else None
             if not v:
-                rec.update({"auto_textual": "N", "note": "village not found on webgis2"})
+                # resolver failure — cannot verify; NOT a portal 'no record'
+                rec["note"] = "village not resolved on webgis2 (uncomparable)"
             else:
                 rdid, rtid, lgd = v
-                plots = client.plots(rdid, rtid, lgd)
+                plots = _retry(lambda: client.plots(rdid, rtid, lgd))
                 if not plots:
-                    rec.update({"auto_textual": "N", "note": "no plots on portal"})
+                    rec.update({"auto_textual": "N", "note": "portal: no abadi plots for village"})
                 else:
                     p = _pick_plot(plots, survey)
-                    det = client.ror_detail(rdid, rtid, lgd, p.get("clr_plot_no"),
-                                            p["property_id"], "PLOT")
-                    d = det.get("data", {}) if isinstance(det, dict) else {}
-                    rows = d.get("owner_detail") or d.get("land_detail") or []
-                    if not rows:
-                        rec.update({"auto_textual": "N", "note": "no record for sampled plot"})
-                    else:
-                        r0 = rows[0]
-                        html = client.ror_html(rdid, rtid, lgd, p.get("clr_plot_no"),
-                                               p["property_id"], r0.get("khasra_no"),
-                                               r0.get("owner_samagra_id"), r0.get("loc_id"), "PLOT")
-                        textual = "Y" if ("विल्लंगम" in html or "प्ररूप" in html
-                                           or "भूमिस्वामी" in html) else "N"
-                        joint, nowners, govt = _joint_and_owners(rows)
-                        rec.update({"auto_textual": textual, "auto_joint": joint,
-                                    "owners_on_record": nowners, "govt_land": "Y" if govt else "N",
-                                    "note": "spatial not auto-checked (map endpoint)"})
+                    try:
+                        det = _retry(lambda: client.ror_detail(
+                            rdid, rtid, lgd, p.get("clr_plot_no"), p["property_id"], "PLOT"))
+                    except Exception as e:  # noqa: BLE001
+                        if "No record found" in str(e) or "120001" in str(e):
+                            rec.update({"auto_textual": "N", "note": "portal: no record for sampled plot"})
+                            det = None
+                        else:
+                            raise
+                    if det is not None:
+                        d = det.get("data", {}) if isinstance(det, dict) else {}
+                        rows = d.get("owner_detail") or d.get("land_detail") or []
+                        if not rows:
+                            rec.update({"auto_textual": "N", "note": "portal: empty record"})
+                        else:
+                            r0 = rows[0]
+                            html = _retry(lambda: client.ror_html(
+                                rdid, rtid, lgd, p.get("clr_plot_no"), p["property_id"],
+                                r0.get("khasra_no"), r0.get("owner_samagra_id"),
+                                r0.get("loc_id"), "PLOT"))
+                            textual = "Y" if ("विल्लंगम" in html or "प्ररूप" in html
+                                              or "भूमिस्वामी" in html) else "N"
+                            joint, nowners, govt = _joint_and_owners(rows)
+                            rec.update({"auto_textual": textual, "auto_joint": joint,
+                                        "owners_on_record": nowners,
+                                        "govt_land": "Y" if govt else "N",
+                                        "note": "govt plot — joint NA" if govt else ""})
         except Exception as e:  # noqa: BLE001
-            rec["note"] = f"err: {str(e)[:80]}"
+            rec["note"] = f"err (uncomparable): {str(e)[:70]}"
 
-        rec["textual_match"] = "" if not (m_text and rec["auto_textual"]) else \
-            ("OK" if m_text == rec["auto_textual"] else "MISMATCH")
-        rec["joint_match"] = "" if not (m_joint and rec["auto_joint"]) else \
-            ("OK" if m_joint == rec["auto_joint"] else "MISMATCH")
+        # compare only definitive Y/N on both sides; NA / blank / errors are not mismatches
+        at, aj = rec["auto_textual"], rec["auto_joint"]
+        rec["textual_match"] = ("OK" if m_text == at else "MISMATCH") \
+            if (m_text in ("Y", "N") and at in ("Y", "N")) else ""
+        rec["joint_match"] = ("OK" if m_joint == aj else "MISMATCH") \
+            if (m_joint in ("Y", "N") and aj in ("Y", "N")) else ""
 
         results.append(rec)
         pd.DataFrame(results, columns=OUT_COLS).to_csv(out_path, index=False)
@@ -212,12 +237,14 @@ def run(sheet: str, data_dir: str, limit: int | None, delay: float):
     res = pd.DataFrame(results, columns=OUT_COLS)
     tm = res[res["textual_match"] != ""]
     jm = res[res["joint_match"] != ""]
+    uncomparable = res[res["auto_textual"].isin(["", None]) | res["auto_textual"].isna()]
     print(f"\n=== SIPI MP verification ===")
-    print(f"rows checked: {len(res)}")
+    print(f"rows checked: {len(res)}  |  uncomparable (not resolved / timeout / error): {len(uncomparable)}")
     print(f"textual: {(tm['textual_match']=='OK').sum()} OK / {(tm['textual_match']=='MISMATCH').sum()} MISMATCH "
           f"(of {len(tm)} comparable)")
     print(f"joint  : {(jm['joint_match']=='OK').sum()} OK / {(jm['joint_match']=='MISMATCH').sum()} MISMATCH "
           f"(of {len(jm)} comparable)")
+    print(f"govt-land plots sampled (joint = NA): {(res['govt_land']=='Y').sum()}")
     mism = res[(res["textual_match"] == "MISMATCH") | (res["joint_match"] == "MISMATCH")]
     if len(mism):
         print(f"\nmismatches ({len(mism)}):")
