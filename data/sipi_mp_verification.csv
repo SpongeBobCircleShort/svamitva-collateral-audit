@@ -1,17 +1,219 @@
 district,tehsil,village,survey_no,manual_textual,auto_textual,textual_match,manual_joint,auto_joint,joint_match,manual_spatial,owners_on_record,govt_land,note
-Agar-Malwa,Agar,Mali Khedi,50 (P)-302(B),Y,Y,OK,N,N,OK,,1,N,spatial not auto-checked (map endpoint)
-Agar-Malwa,Agar,Guru Khedi,50-208,Y,Y,OK,N,N,OK,,1,N,spatial not auto-checked (map endpoint)
-Agar-Malwa,Soyatkala,Ganeshpura,50-395,Y,Y,OK,Y,Y,OK,,2,N,spatial not auto-checked (map endpoint)
-Agar-Malwa,Soyatkala,Bhawanipura,50-130/4/2,Y,Y,OK,N,NA,MISMATCH,,1,Y,spatial not auto-checked (map endpoint)
-Alirajpur,Alirajpur,Lakhan Kot,nan,N,,,N,,,,,,"err: 400 ror-detail -> {""code"":120001,""message"":""No record found."",""message_ll"":""कोई "
-Alirajpur,Alirajpur,Ramsingh Ki Choki,50-876,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
-Alirajpur,Jobat,Khutaja,16-203/3,Y,Y,OK,N,N,OK,,1,Y,spatial not auto-checked (map endpoint)
-Alirajpur,Jobat,Chhotaguda,2-92,Y,Y,OK,N,NA,MISMATCH,,1,Y,spatial not auto-checked (map endpoint)
-Anuppur,Anuppur,Dulhara,16-409/1/2,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
-Anuppur,Anuppur,Kusumhai,13-37/1/1/2,Y,N,MISMATCH,N,,,,,,village not found on webgis2
-Anuppur,Kotma,Sakola,30-2354,Y,Y,OK,N,N,OK,,1,N,spatial not auto-checked (map endpoint)
-Anuppur,Kotma,Pakariya,nan,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
-Ashoknagar,Ashoknagar,Takneri,29-245,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
-Ashoknagar,Ashoknagar,Shankarpur,48-186,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
-Ashoknagar,Mungaoli,Karra,36-193,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
-Ashoknagar,Mungaoli,Bandhi,3-67,Y,,,N,,,,,,"err: HTTPSConnectionPool(host='webgis2.mpbhulekh.gov.in', port=443): Read timed out. "
+Agar-Malwa,Agar,Mali Khedi,50 (P)-302(B),Y,Y,OK,N,N,OK,,1,N,
+Agar-Malwa,Agar,Guru Khedi,50-208,Y,Y,OK,N,N,OK,,1,N,
+Agar-Malwa,Soyatkala,Ganeshpura,50-395,Y,Y,OK,Y,Y,OK,,2,N,
+Agar-Malwa,Soyatkala,Bhawanipura,50-130/4/2,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Alirajpur,Alirajpur,Lakhan Kot,nan,N,N,OK,N,,,,,,portal: no record for sampled plot
+Alirajpur,Alirajpur,Ramsingh Ki Choki,50-876,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Alirajpur,Jobat,Khutaja,16-203/3,Y,Y,OK,N,N,OK,,1,Y,govt plot — joint NA
+Alirajpur,Jobat,Chhotaguda,2-92,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Anuppur,Anuppur,Dulhara,16-409/1/2,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Anuppur,Anuppur,Kusumhai,13-37/1/1/2,Y,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+Anuppur,Kotma,Sakola,30-2354,Y,Y,OK,N,N,OK,,1,N,
+Anuppur,Kotma,Pakariya,nan,Y,Y,OK,N,N,OK,,1,N,
+Ashoknagar,Ashoknagar,Takneri,29-245,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Ashoknagar,Ashoknagar,Shankarpur,48-186,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Ashoknagar,Mungaoli,Karra,36-193,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Ashoknagar,Mungaoli,Bandhi,3-67,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Balaghat,Balaghat,Bhatera,50-62/1,Y,Y,OK,Y,Y,OK,,2,N,
+Balaghat,Balaghat,Kosmi (Ct),50-241/1,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Balaghat,Birsa,Bhanderi,14-52,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Balaghat,Birsa,Eko,15-22/3,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Barwani,Barwani,Barwani Khurd,31-27,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Barwani,Barwani,Kalyanpura,35-35,Y,N,MISMATCH,N,,,,,,portal: no record for sampled plot
+Barwani,Varla,Malwan,nan,N,N,OK,N,,,,,,portal: no record for sampled plot
+Barwani,Varla,Solwan,50-313,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Betul,Betul,Parsodi Khurd,50-59,Y,Y,OK,N,N,OK,,1,N,
+Betul,Betul,Khakra Jamthi,14-54,Y,Y,OK,N,N,OK,,1,N,
+Betul,Bhimpur,Simori,50-172,Y,Y,OK,N,N,OK,,1,N,
+Betul,Bhimpur,Ratamati,50-700,Y,Y,OK,N,Y,MISMATCH,,2,N,
+Bhind,Bhind Nagar,Mudiakhara,50-253,Y,Y,OK,N,N,OK,,1,N,
+Bhind,Bhind Nagar,Ratanupura,50-575,Y,Y,OK,Y,Y,OK,,2,N,
+Bhind,Lahar,Sijroli,50-106,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Bhind,Lahar,Keshavgarh,50-466,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Bhopal,Huzur,Pipliya Bajkhan,50-297,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Bhopal,Huzur,Ghat Khedi,25-20,Y,Y,OK,N,N,OK,,1,N,
+Bhopal,Berasia,Mudia Kheda,50-57,Y,Y,OK,N,N,OK,,1,N,
+Bhopal,Berasia,Berkhedi Kalan,50-305,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Burhanpur,Burhanpur Nagar,Hamidpura,47-70,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Burhanpur,Burhanpur Nagar,Emagird,50-42,Y,Y,OK,N,Y,MISMATCH,,1,N,
+Burhanpur,Khaknar,Gulai,50-126,Y,Y,OK,N,N,OK,,1,N,
+Burhanpur,Khaknar,Sindh Kheda Kalan,50-137,Y,Y,OK,N,N,OK,,1,N,
+Chhatarpur,Chhatarpur Nagar,Palotha,36-859,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Chhatarpur,Chhatarpur Nagar,Saura (Part),50-478,Y,Y,OK,N,N,OK,,1,N,
+Chhatarpur,Buxwaha,Panchhi,18-59,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Chhatarpur,Buxwaha,Pipariya Kalan,43-234,Y,Y,OK,N,N,OK,,1,N,
+Chhindwara,Chhindwara,Dungariya,50-46,Y,Y,OK,N,N,OK,,1,N,
+Chhindwara,Chhindwara,Thuniya Udana,50-267,Y,Y,OK,Y,Y,OK,,4,N,
+Chhindwara,Harrai,Imajhiri,19-34,Y,Y,OK,N,N,OK,,1,N,
+Chhindwara,Harrai,Tehtori,50-103,Y,Y,OK,Y,Y,OK,,2,N,
+Damoh,Damyanti Nagar,Samanna Ryt.,8-20,Y,Y,OK,N,N,OK,,1,N,
+Damoh,Damyanti Nagar,Hirdepur (Ct),50-304,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Damoh,Hatta,Prempura,50-133,Y,Y,OK,Y,Y,OK,,2,N,
+Damoh,Hatta,Bori Kalan,50-263,Y,Y,OK,Y,Y,OK,,4,N,
+Datia,Datia Nagar,Richhara,50-417,Y,Y,OK,N,N,OK,,1,N,
+Datia,Datia Nagar,Bhawanipur,50-293,N,N,OK,N,,,,,,portal: no record for sampled plot
+Datia,Seondha,Maharoli,50-79,Y,Y,OK,N,N,OK,,1,N,
+Datia,Seondha,Sikroli,45-314,Y,Y,OK,N,Y,MISMATCH,,2,N,
+Dewas,Dewas Nagar,Mukundkhedi,50-70,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Dewas,Dewas Nagar,Nagukhedi,50-157,Y,Y,OK,N,N,OK,,1,N,
+Dewas,Khategaon,Satal,44-202,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Dewas,Khategaon,Nandakheda,50-77,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Dhar,Dhar,Amkheda,50-251,Y,Y,OK,Y,Y,OK,,2,N,
+Dhar,Dhar,Delmi,50-302,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Dhar,Dahi,Silkua,50-16/4,Y,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+Dhar,Dahi,Pithampur,nan,N,N,OK,N,,,,,,portal: no record for sampled plot
+Dindori,Dindori,Dand Vidaypur Mal.,50-126,Y,Y,OK,Y,NA,,,1,Y,govt plot — joint NA
+Dindori,Dindori,Dhaurai Mal.,1-10,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Dindori,Shahpura,Kalagitola Mal.,50-100,Y,Y,OK,N,N,OK,,1,N,
+Dindori,Shahpura,Marwari Ryt.(Mundi),40-92,Y,Y,OK,N,N,OK,,1,N,
+Guna,Guna Nagar,Binayak Khedi,43-119,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Guna,Guna Nagar,Sakatpur,nan,N,Y,MISMATCH,N,N,OK,,1,N,
+Guna,Chachoda,Barkhedi Khurd,50-168/1,Y,Y,OK,N,N,OK,,1,N,
+Guna,Chachoda,Kandya Khedi Khurd,27-170,Y,Y,OK,N,N,OK,,1,N,
+Gwalior,Gwalior Gramin,Jebra,50-522,Y,Y,OK,Y,Y,OK,,3,N,
+Gwalior,Gwalior Gramin,Sigora,50-297,Y,Y,OK,Y,Y,OK,,2,N,
+Gwalior,Bhitarwar,Ikahara,50-621,Y,Y,OK,N,N,OK,,1,N,
+Gwalior,Bhitarwar,Gadajar,50-1432,Y,Y,OK,N,N,OK,,1,N,
+Harda,Harda,Rupiparetiya,50-51,Y,Y,OK,N,N,OK,,1,N,
+Harda,Harda,Rahta Khurd,50-122,Y,Y,OK,N,N,OK,,1,N,
+Harda,Khirkiya,Salabebi,37-68,Y,Y,OK,N,N,OK,,1,N,
+Harda,Khirkiya,Harpalia,50-107,Y,Y,OK,N,N,OK,,1,N,
+Indore,Indore,Kalod Hala,50-143,Y,Y,OK,N,N,OK,,1,N,
+Indore,Depalpur,Muradpura,41-27,Y,Y,OK,N,N,OK,,1,N,
+Indore,Depalpur,Chirakhan,50-1162,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Jabalpur,Ranjhi,Tighra,50-169,Y,Y,OK,N,N,OK,,1,N,
+Jabalpur,Kundam,Luhkari,50-304,Y,Y,OK,N,N,OK,,1,N,
+Jabalpur,Kundam,Amjhar,50-80,Y,Y,OK,N,N,OK,,1,N,
+Jhabua,Jhabua,Badkuwa,nan,N,N,OK,N,,,,,,portal: no record for sampled plot
+Jhabua,Jhabua,Mindal,nan,N,Y,MISMATCH,N,NA,,,1,Y,govt plot — joint NA
+Jhabua,Petlawad,Parewa,2-450,Y,Y,OK,N,N,OK,,1,N,
+Jhabua,Petlawad,Mohankot,50-1234,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Katni,Murwara Or Katni,Hirwara,50-843,Y,Y,OK,Y,Y,OK,,3,N,
+Katni,Murwara Or Katni,Khirwa,50-283,Y,Y,OK,N,N,OK,,1,N,
+Katni,Bahoriband,Kiwlari,24-51,Y,Y,OK,N,N,OK,,1,N,
+Katni,Bahoriband,Diwari,50-1032,Y,Y,OK,N,N,OK,,1,N,
+Khandwa (East Nimar),Khandwa Nagar,Bhandariya,50-144,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Khandwa (East Nimar),Khandwa Nagar,Badgaon Bhila,50-379,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Khandwa (East Nimar),Killod,Malood,50-170,Y,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+Khandwa (East Nimar),Killod,Jaitapur Kalan,48-93,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Khargone (West Nimar),Khargone Nagar,Mangrulbujurg,50-3,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Khargone (West Nimar),Khargone Nagar,Bhasner,50-22/2,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Khargone (West Nimar),Barwaha,Kapasthal,49-146,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Khargone (West Nimar),Barwaha,Semarla,50-262,Y,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+MAUGANJ,Hanumana,Bahuti,50-802,Y,Y,OK,N,N,OK,,1,N,
+MAUGANJ,Hanumana,Tadahar No 1,19-94,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+MAUGANJ,Naigarhi,Karhi,23-284,Y,Y,OK,N,N,OK,,1,Y,govt plot — joint NA
+MAUGANJ,Naigarhi,Naraini,20-77/1,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Maihar,Maihar,Kusiyari,5-103,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Maihar,Maihar,Barhi,50-217,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Maihar,Ramnagar,Khara,50-423,Y,Y,OK,N,N,OK,,1,N,
+Maihar,Ramnagar,Karaudi,26-22,Y,Y,OK,N,N,OK,,1,N,
+Mandla,Mandla,Rambag,50-185,Y,Y,OK,N,N,OK,,1,N,
+Mandla,Mandla,Sakwah Khurd,50-66,Y,Y,OK,N,N,OK,,1,N,
+Mandla,Niwas,Dobhi (Salhepani),50-162,Y,Y,OK,N,N,OK,,1,N,
+Mandla,Niwas,Salhepani (Dobhi),50-136,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Mandsaur,Mandsaur Nagar,Alawadakhedi,50-21,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Mandsaur,Mandsaur Nagar,Lalghati,50-94,Y,Y,OK,N,N,OK,,1,N,
+Mandsaur,Bhanpura,Surjana,50-85,Y,Y,OK,N,N,OK,,1,N,
+Mandsaur,Bhanpura,Kherkheda Bhat,33-106,Y,Y,OK,Y,Y,OK,,2,N,
+Morena,Morena,Jagatpur,50-310,Y,Y,OK,Y,Y,OK,,3,N,
+Morena,Morena,Jawara Kheda,50-499,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Morena,Sabalgarh,Kathawana,50-491,Y,Y,OK,N,N,OK,,1,N,
+Morena,Sabalgarh,Chanota,50-266,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Narmadapuram,Hoshangabad,Dongarwada,nan,N,Y,MISMATCH,N,N,OK,,1,N,
+Narmadapuram,Hoshangabad,Kulamdi,50-230,Y,Y,OK,N,N,OK,,1,N,
+Narmadapuram,Bankhedi,Paraswada,50-110,Y,Y,OK,N,Y,MISMATCH,,3,N,
+Narmadapuram,Bankhedi,Ghoghari Mattha,nan,N,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+Narsimhapur,Kareli,Khairi,50-98/1,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Narsimhapur,Kareli,Mainawari,50-98,Y,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+Narsimhapur,Saikheda,Bichua (Bichhua),50-38/2,Y,,,Y,,,,,,village not resolved on webgis2 (uncomparable)
+Narsimhapur,Saikheda,Narwara,50-258,Y,,,N,,,,,,village not resolved on webgis2 (uncomparable)
+Neemuch,Neemuch Nagar,Jaisingpura,50-179,Y,Y,OK,N,N,OK,,1,N,
+Neemuch,Neemuch Nagar,Arnyakumar,50-179,Y,Y,OK,N,N,OK,,1,N,
+Neemuch,Singoli,Amba Jat,50-89,Y,Y,OK,N,N,OK,,1,N,
+Neemuch,Singoli,Chadol,50-32,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Niwari,Niwari,Niwari Bhata,50-150/1,Y,Y,OK,N,N,OK,,1,N,
+Niwari,Niwari,Poha Khas,50-410,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Niwari,Orchha,Ghatwaha,50-15/3/1,Y,Y,OK,N,N,OK,,1,N,
+Niwari,Orchha,Bhojpura,34-83,Y,Y,OK,N,N,OK,,1,N,
+Pandhurna,Pandhurna,Ambada Khurd,50-147,Y,Y,OK,Y,Y,OK,,2,N,
+Pandhurna,Pandhurna,Deo Khapa,50-42,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Pandhurna,Sausar,Kondhar Dawami,50-54,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Pandhurna,Sausar,Razhadipipla,50-189,Y,Y,OK,Y,Y,OK,,3,N,
+Panna,Panna,Sarkoha,23-35,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Panna,Panna,Kalyanpur,nan,N,N,OK,N,,,,,,portal: no record for sampled plot
+Panna,Raipura,Chunguna,50-145,Y,Y,OK,N,N,OK,,1,N,
+Panna,Raipura,Chandrawal,50-1348,Y,Y,OK,N,N,OK,,1,N,
+Raisen,Raisen,Rangpura (Imaliya),31-36,Y,Y,OK,N,N,OK,,1,N,
+Raisen,Raisen,Mohniya Khedi,39-64,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Raisen,Deori,Kalhedi Khurd,22-77,Y,Y,OK,N,N,OK,,1,N,
+Raisen,Deori,Mankapur,50-89,Y,Y,OK,N,N,OK,,1,N,
+Rajgarh,Rajgarh,Laxmanpura,6-62,Y,Y,OK,N,N,OK,,1,N,
+Rajgarh,Rajgarh,Baldiya,42-66,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Rajgarh,Narsinghgarh,Paniya,50-806,Y,Y,OK,Y,Y,OK,,2,N,
+Rajgarh,Narsinghgarh,Bhainsani,50-296,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Ratlam,Ratlam Nagar,Karmadi,50-366,Y,Y,OK,Y,Y,OK,,2,N,
+Ratlam,Ratlam Nagar,Mathuri,50-111/1,Y,Y,OK,N,N,OK,,1,Y,govt plot — joint NA
+Ratlam,Alot,Chhapri,50-93,Y,Y,OK,N,N,OK,,1,N,
+Ratlam,Alot,Saranga Kheda,50-183,Y,Y,OK,N,N,OK,,1,N,
+Rewa,Huzur Nagar,Silpari,44-439,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Rewa,Huzur Nagar,Kothi,50-307,Y,Y,OK,N,N,OK,,1,N,
+Rewa,Teonthar,Dadh,50-23/3,Y,Y,OK,N,N,OK,,1,N,
+Rewa,Teonthar,Jamai Kalan,46-26,Y,Y,OK,N,N,OK,,1,N,
+Sagar,Sagar Nagar,Patheriya Raiyatwari,50-7,Y,Y,OK,N,N,OK,,1,N,
+Sagar,Sagar Nagar,Patheriya Jat,50-708,Y,Y,OK,N,N,OK,,1,N,
+Sagar,Bina,Pali,50-60,Y,Y,OK,N,N,OK,,1,N,
+Sagar,Bina,Bhapson,12-30,Y,Y,OK,N,N,OK,,1,N,
+Satna,Raghurajnagar (Nagriya),Beeriha,2-33,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Satna,Raghurajnagar (Nagriya),Sejahata,50-300/1/1,Y,Y,OK,Y,Y,OK,,5,N,
+Satna,Majhgawan,Motwa,50-101/1,Y,Y,OK,N,N,OK,,1,N,
+Satna,Majhgawan,Kathauta,nan,N,Y,MISMATCH,N,N,OK,,1,N,
+Sehore,Sehore,Sherpur (Part),50-179,Y,Y,OK,N,N,OK,,1,N,
+Sehore,Sehore,Bijori,50-216,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Sehore,Budni,Khanda Bad,50-56/2,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Sehore,Budni,Pandado,50-42,Y,Y,OK,N,N,OK,,1,N,
+Seoni,Seoni Nagar,Marjhor,50-214,Y,Y,OK,N,Y,MISMATCH,,2,N,
+Seoni,Seoni Nagar,Dorlichhatarpur,50-144,Y,Y,OK,Y,Y,OK,,2,N,
+Seoni,Ghansaur,Harrai,50-26,Y,Y,OK,Y,Y,OK,,2,N,
+Seoni,Ghansaur,Karkwada,50-45,Y,Y,OK,Y,Y,OK,,2,N,
+Shahdol,Sohagpur,Dudhi,15-443/1,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Shahdol,Sohagpur,Pachgaon,17-961/1,Y,Y,OK,N,N,OK,,1,N,
+Shahdol,Beohari,Mahdeva,36-5,Y,Y,OK,Y,Y,OK,,2,N,
+Shahdol,Beohari,Khadda,6-3069,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Shajapur,Shajapur,Moolikheda,50-473,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Shajapur,Shajapur,Patoli,50-820,Y,Y,OK,Y,Y,OK,,6,N,
+Shajapur,Kalapipal,Tilawad,50-977,Y,Y,OK,Y,Y,OK,,2,N,
+Shajapur,Kalapipal,Akodi,50-227,Y,Y,OK,N,N,OK,,1,N,
+Sheopur,Sheopur,Birampura,47-66,Y,Y,OK,N,N,OK,,1,N,
+Sheopur,Sheopur,Malpura,43-142,Y,Y,OK,Y,Y,OK,,2,N,
+Sheopur,Vijaypur,Dhourera,50-274,Y,Y,OK,Y,Y,OK,,2,N,
+Sheopur,Vijaypur,Umari Kalan,50-319,Y,Y,OK,N,N,OK,,1,N,
+Shivpuri,Shivpuri,Nohri Kalan,50-1498,Y,Y,OK,N,N,OK,,1,N,
+Shivpuri,Shivpuri,Rator,50-1544,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Shivpuri,Khaniyadhana,Guraiya,50-433,Y,Y,OK,N,N,OK,,1,N,
+Shivpuri,Khaniyadhana,Masuri,50-704,Y,Y,OK,N,N,OK,,1,N,
+Sidhi,Churhat,Lakoda,50-819,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Sidhi,Churhat,Gayghat,32-195,Y,Y,OK,N,N,OK,,1,N,
+Sidhi,Kusmi,Bhadaura,7-944,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Sidhi,Kusmi,Bajwai,11-757,Y,Y,OK,N,N,OK,,1,N,
+Singrauli,Singrauli,Tusa Khand,13-190,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Singrauli,Singrauli,Kam,50-195,Y,Y,OK,N,N,OK,,1,N,
+Singrauli,Chitrangi,Tenduha,8-346,Y,Y,OK,Y,Y,OK,,4,N,
+Singrauli,Chitrangi,Pidariya,27-1616,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Tikamgarh,Tikamgarh,Maharajpura,50-737,Y,Y,OK,Y,Y,OK,,3,N,
+Tikamgarh,Tikamgarh,Kuvarpura,50-8,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Tikamgarh,Palera,Bhatgora,50-30,Y,Y,OK,Y,Y,OK,,2,N,
+Tikamgarh,Palera,Magrai,50-1602,Y,Y,OK,Y,Y,OK,,2,N,
+Ujjain,Kothi Mahal,Jiwankhedi,41-54,Y,Y,OK,N,N,OK,,1,N,
+Ujjain,Kothi Mahal,Sikandari,50-34,Y,Y,OK,N,N,OK,,1,N,
+Ujjain,Khacharod,Kadiyali,50-236,Y,Y,OK,Y,Y,OK,,3,N,
+Ujjain,Khacharod,Sekdi Sultanpur,50-278,Y,Y,OK,N,N,OK,,1,N,
+Umaria,Bandhavgarh,Mahimar,15-208,Y,Y,OK,Y,Y,OK,,2,N,
+Umaria,Bandhavgarh,Mahroi,41-779/1,Y,Y,OK,N,N,OK,,1,N,
+Umaria,Pali,Maman,7-417,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Umaria,Pali,Odari-I,29-399,Y,Y,OK,N,NA,,,1,Y,govt plot — joint NA
+Vidisha,Vidisha Nagar,Hasnabad,5-34,Y,Y,OK,N,N,OK,,1,N,
+Vidisha,Vidisha Nagar,Amkheda Haweli,50-69/2,Y,Y,OK,N,N,OK,,1,N,
+Vidisha,Lateri,Muskara,50-181,Y,Y,OK,N,N,OK,,1,Y,govt plot — joint NA
+Vidisha,Lateri,Danwas,50-140,Y,Y,OK,N,N,OK,,1,N,
