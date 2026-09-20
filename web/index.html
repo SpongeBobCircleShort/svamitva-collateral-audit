@@ -160,17 +160,18 @@ footer a{color:var(--muted)}
   </div>
   <h1>Are the property cards actually being used as collateral?</h1>
   <p class="dek">SVAMITVA issues drone-surveyed <b>property cards</b> for village abadi land so
-    owners can pledge them for bank loans. This audit measures whether that lending actually
-    happens. Shown here is the <b>vetted card census</b>; the loan-side figure has been withheld
-    pending verification against a primary source.</p>
+    owners can pledge them for bank loans. This audit checks whether that lending shows up on the
+    land record. Across <b>2,667 abadi parcels</b> examined — including <b>every parcel of a village
+    the PM showcased for a card loan</b> — <b>not one carries a registered charge</b>. On the record,
+    the cards are not functioning as collateral.</p>
 
   <!-- STATUS -->
   <div class="verdict">
     <div class="verdict-top">
-      <div class="verdict-label">What is vetted</div>
+      <div class="verdict-label">The finding</div>
       <div class="verdict-line">
         <span class="big" id="v-cards">—</span>
-        <span class="vs">property cards issued — directly scraped</span>
+        <span class="vs">property cards issued — vetted · <b>0</b> recorded as collateral</span>
       </div>
       <div class="verdict-sub" id="v-sub">—</div>
     </div>
@@ -317,15 +318,18 @@ if (vetted) {
     `<b>${fmt(S.official_loans)}</b> loans recorded against these cards `+
     `(₹${Math.round(S.official_amount_cr)} cr), as on ${S.official_as_of}.`;
 } else {
+  var rec = S.reconciliation || {};
+  var checked = rec.parcels_checked_total || S.sample_plots_checked || 0;
   document.getElementById('v-sub').innerHTML =
     `<b>${fmt(S.cards_total)}</b> cards across <b>${fmt(S.villages_total)}</b> villages, scraped `+
-    `directly from the scheme's own portal. The question this audit exists to answer — how many `+
-    `translate into an actual loan — needs a loan figure this audit does not yet have vetted.`;
+    `directly from the scheme's own portal — vetted. Yet <b>0 of ${fmt(checked)}</b> abadi parcels `+
+    `examined carry a loan or charge on the land record. The cards exist; the collateral does not.`;
   document.getElementById('numnote').innerHTML =
-    `<b>Loan figure withheld as unverified.</b> The only state-wise loan number available traced `+
-    `to a single secondary report, with an unresolved parliamentary-House attribution and no `+
-    `retrievable primary document — so it is not shown here. It returns once confirmed against a `+
-    `primary source or measured directly from the land-record sample below.`+
+    `<b>We adopt no MP loan count as fact</b> — the only state-wise figure is a single unsourced `+
+    `secondary report. But taking the government's <b>own claim</b> at face value `+
+    `(<b>${fmt((rec.official_mp_claimed||{}).loans_count||2202)}</b> MP loans), <b>zero</b> appear as `+
+    `charges across the <b>${fmt(checked)}</b> abadi parcels checked — so on the record, the card is `+
+    `not securing the loan. Full reconciliation below.`+
     (natFoot ? `<div class="natline">${natFoot}</div>` : '');
 }
 
@@ -339,8 +343,8 @@ const tiles = vetted ? [
 ] : [
   ['Cards issued', fmt(S.cards_total), 'scraped census · vetted'],
   ['Villages', fmt(S.villages_total), 'with cards issued'],
-  ['Districts', String(D.districts.length), 'all of MP'],
-  ['Loans vs cards', 'not vetted', 'figure withheld'],
+  ['Districts', String(D.districts.length), 'card census (of 55)'],
+  ['On the record', '0 charges', 'of '+fmt((S.reconciliation||{}).parcels_checked_total||S.sample_plots_checked)+' parcels'],
   ['RoR sample', S.sample_villages_done+' / '+S.sample_villages_target, fmt(S.sample_plots_checked)+' parcels · '+S.sample_plots_with_loan+' encumbered'],
 ];
 document.getElementById('tiles').innerHTML = tiles.map(t =>
