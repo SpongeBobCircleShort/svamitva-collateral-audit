@@ -1,0 +1,56 @@
+no,district,tehsil,village,lgd_code,village_to_hq_km,in_card_census,village_cards_issued,village_properties,abadi_parcels_checked,parcels_with_loan_or_charge,encumbrance_rate_pct,status
+1,Agar-Malwa,Agar,Mali Khedi,472521,3.9,Yes,145,179,39,0,0.0,Sampled
+2,Alirajpur,Alirajpur,Lakhan Kot,505202,3.4,Yes,1,1,1,0,0.0,Sampled
+3,Anuppur,Anuppur,Dulhara,501933,2.4,Yes,8,8,12,0,0.0,Sampled
+4,Ashoknagar,Ashoknagar,Takneri,500366,0.3,Yes,15,19,28,0,0.0,Sampled
+5,Balaghat,Balaghat,Bhatera,497747,3.0,No (new district),0,0,40,0,0.0,Sampled
+6,Barwani,Barwani,Barwani Khurd,478005,4.9,Yes,22,38,31,0,0.0,Sampled
+7,Betul,Betul,Parsodi Khurd,485667,2.8,Yes,50,55,40,0,0.0,Sampled
+8,Bhind,Bhind Nagar,Mudiakhara,452910,3.9,Yes,202,273,40,0,0.0,Sampled
+9,Bhopal,Huzur,Pipliya Bajkhan,482458,10.1,Yes,74,80,40,0,0.0,Sampled
+10,Burhanpur,Burhanpur Nagar,Hamidpura,506176,2.0,Yes,38,76,40,0,0.0,Sampled
+11,Chhatarpur,Chhatarpur Nagar,Palotha,457927,4.1,Yes,27,33,35,0,0.0,Sampled
+12,Chhindwara,Chhindwara,Dungariya,494889,9.1,No (new district),0,0,40,0,0.0,Sampled
+13,Damoh,Damyanti Nagar,Samanna Ryt.,462338,3.2,Yes,6,14,8,0,0.0,Sampled
+14,Datia,Datia Nagar,Richhara,454644,7.1,Yes,136,246,40,0,0.0,Sampled
+15,Dewas,Dewas Nagar,Mukundkhedi,473568,5.5,Yes,81,94,40,0,0.0,Sampled
+16,Dhar,Dhar,Amkheda,474839,4.8,Yes,45,93,38,0,0.0,Sampled
+17,Dindori,Dindori,Dand Vidaypur Mal.,491957,3.9,No (new district),0,0,40,0,0.0,Sampled
+18,Guna,Guna Nagar,Binayak Khedi,498859,4.4,Yes,31,60,40,0,0.0,Sampled
+19,Gwalior,Gwalior Gramin,Jebra,453833,9.9,Yes,81,217,40,0,0.0,Sampled
+20,Harda,Harda,Rupiparetiya,486741,5.1,Yes,99,134,40,0,0.0,Sampled
+21,Indore,Juni Indore,Kalod Hala,476267,11.2,Yes,166,197,40,0,0.0,Sampled
+22,Jabalpur,Ranjhi,Tighra,489829,14.7,Yes,55,60,40,0,0.0,Sampled
+23,Jhabua,Jhabua,Badkuwa,504709,2.0,No (new district),0,0,0,0,,No RoR record on portal
+24,Katni,Murwara Or Katni,Hirwara,488149,3.3,No (new district),0,0,40,0,0.0,Sampled
+25,Khandwa (East Nimar),Khandwa Nagar,Bhandariya,505759,6.0,Yes,210,422,0,0,,Not found on portal
+26,Khargone (West Nimar),Khargone Nagar,Mangrulbujurg,477605,5.0,Yes,281,599,0,0,,Not found on portal
+27,MAUGANJ,Hanumana,Bahuti,466160,5.4,No (new district),0,0,40,0,0.0,Sampled
+28,Maihar,Maihar,Kusiyari,464685,4.0,No (new district),0,0,5,0,0.0,Sampled
+29,Mandla,Mandla,Rambag,492917,2.5,Yes,27,28,36,0,0.0,Sampled
+30,Mandsaur,Mandsaur Nagar,Alawadakhedi,469549,4.0,Yes,286,296,40,0,0.0,Sampled
+31,Morena,Morena,Jagatpur,452265,7.1,No (new district),0,0,39,0,0.0,Sampled
+32,Narmadapuram,Hoshangabad,Dongarwada,487433,6.0,No (new district),0,0,37,0,0.0,Sampled
+33,Narsimhapur,Kareli,Khairi,491343,3.9,Yes,192,376,0,0,,Not found on portal
+34,Neemuch,Neemuch Nagar,Jaisingpura,468676,3.5,No (new district),0,0,40,0,0.0,Sampled
+35,Niwari,Niwari,Niwari Bhata,456421,3.3,Yes,82,98,40,0,0.0,Sampled
+36,Pandhurna,Pandhurna,Ambada Khurd,495610,4.1,No (new district),0,0,38,0,0.0,Sampled
+37,Panna,Panna,Sarkoha,458709,7.2,Yes,10,17,23,0,0.0,Sampled
+38,Raisen,Raisen,Rangpura (Imaliya),483795,4.1,Yes,21,25,30,0,0.0,Sampled
+39,Rajgarh,Rajgarh,Laxmanpura,479409,2.4,No (new district),0,0,6,0,0.0,Sampled
+40,Ratlam,Ratlam Nagar,Karmadi,470953,4.4,No (new district),0,0,38,0,0.0,Sampled
+41,Rewa,Huzur Nagar,Silpari,467221,5.4,Yes,27,49,39,0,0.0,Sampled
+42,Sagar,Sagar Nagar,Patheriya Raiyatwari,460623,5.3,Yes,74,94,40,0,0.0,Sampled
+43,Satna,Raghurajnagar (Nagriya),Beeriha,463136,5.0,Yes,1,5,2,0,0.0,Sampled
+44,Sehore,Sehore,Sherpur (Part),482651,3.8,Yes,110,129,39,0,0.0,Sampled
+45,Seoni,Seoni Nagar,Marjhor,496845,1.0,Yes,58,92,40,0,0.0,Sampled
+46,Shahdol,Sohagpur,Dudhi,501285,8.6,Yes,7,7,14,0,0.0,Sampled
+47,Shajapur,Shajapur,Moolikheda,472706,2.7,Yes,205,342,40,0,0.0,Sampled
+48,Sheopur,Sheopur,Birampura,451667,2.5,Yes,29,30,38,0,0.0,Sampled
+49,Shivpuri,Shivpuri,Nohri Kalan,455376,6.8,Yes,188,256,40,0,0.0,Sampled
+50,Sidhi,Churhat,Lakoda,502496,10.3,Yes,29,48,39,0,0.0,Sampled
+51,Singrauli,Singrauli,Tusa Khand,504015,6.7,Yes,7,16,12,0,0.0,Sampled
+52,Tikamgarh,Tikamgarh,Maharajpura,457217,3.5,Yes,344,458,40,0,0.0,Sampled
+53,Ujjain,Kothi Mahal,Jiwankhedi,471884,5.8,Yes,36,39,40,0,0.0,Sampled
+54,Umaria,Bandhavgarh,Mahimar,467588,5.3,Yes,10,17,15,0,0.0,Sampled
+55,Vidisha,Vidisha Nagar,Hasnabad,481982,3.6,Yes,4,4,5,0,0.0,Sampled
