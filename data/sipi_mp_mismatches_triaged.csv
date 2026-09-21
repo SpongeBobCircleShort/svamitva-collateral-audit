@@ -1,11 +1,11 @@
-district,village,survey_no,manual_textual,auto_textual,manual_joint,auto_joint,owners_on_record,diagnosis
-Barwani,Kalyanpura,35-35,Y,N,N,,,textual: our Nth-plot sample hit an empty plot; village likely has records — researcher probably correct
-Betul,Ratamati,50-700,Y,Y,N,Y,2.0,"joint: auto flags any co-ownership (owners=2.0); sheet likely means joint card-titling — definitional, not a confirmed error"
-Burhanpur,Emagird,50-42,Y,Y,N,Y,1.0,"joint: auto flags any co-ownership (owners=1.0); sheet likely means joint card-titling — definitional, not a confirmed error"
-Datia,Sikroli,45-314,Y,Y,N,Y,2.0,"joint: auto flags any co-ownership (owners=2.0); sheet likely means joint card-titling — definitional, not a confirmed error"
-Guna,Sakatpur,,N,Y,N,N,1.0,"textual: portal DOES render a record the sheet marked absent — GENUINE, re-check by hand"
-Jhabua,Mindal,,N,Y,N,,1.0,"textual: portal DOES render a record the sheet marked absent — GENUINE, re-check by hand"
-Narmadapuram,Dongarwada,,N,Y,N,N,1.0,"textual: portal DOES render a record the sheet marked absent — GENUINE, re-check by hand"
-Narmadapuram,Paraswada,50-110,Y,Y,N,Y,3.0,"joint: auto flags any co-ownership (owners=3.0); sheet likely means joint card-titling — definitional, not a confirmed error"
-Satna,Kathauta,,N,Y,N,N,1.0,"textual: portal DOES render a record the sheet marked absent — GENUINE, re-check by hand"
-Seoni,Marjhor,50-214,Y,Y,N,Y,2.0,"joint: auto flags any co-ownership (owners=2.0); sheet likely means joint card-titling — definitional, not a confirmed error"
+district,village,manual_textual,auto_textual,manual_joint,auto_joint,owners_on_record,final_diagnosis
+Barwani,Kalyanpura,Y,N,N,,,TEXTUAL: researcher Y; auto N because our Nth-plot pick hit an empty/govt plot — researcher likely correct (not browser-checked)
+Betul,Ratamati,Y,Y,N,Y,2.0,JOINT: definitional — auto counts any co-ownership (owners=2.0); SIPI means joint card-titling. Not a confirmed error (not browser-checked)
+Burhanpur,Emagird,Y,Y,N,Y,1.0,JOINT: definitional — auto counts any co-ownership (owners=1.0); SIPI means joint card-titling. Not a confirmed error (not browser-checked)
+Datia,Sikroli,Y,Y,N,Y,2.0,JOINT: definitional — auto counts any co-ownership (owners=2.0); SIPI means joint card-titling. Not a confirmed error (not browser-checked)
+Guna,Sakatpur,N,Y,N,N,1.0,"TEXTUAL: BROWSER-VERIFIED researcher N CORRECT — no ""Sakatpur"" in Aabadi portal (only Chak Sakatpura 498857); auto ""Y"" was a name-resolution artifact"
+Jhabua,Mindal,N,Y,N,,1.0,"TEXTUAL: BROWSER-VERIFIED researcher N CORRECT — ""No records found"" in Aabadi portal; auto ""Y"" was a name-resolution artifact"
+Narmadapuram,Dongarwada,N,Y,N,N,1.0,"TEXTUAL: BROWSER-VERIFIED researcher N CORRECT — ""No records found"" in Aabadi portal; auto ""Y"" was a name-resolution artifact"
+Narmadapuram,Paraswada,Y,Y,N,Y,3.0,JOINT: definitional — auto counts any co-ownership (owners=3.0); SIPI means joint card-titling. Not a confirmed error (not browser-checked)
+Satna,Kathauta,N,Y,N,N,1.0,"TEXTUAL: BROWSER-VERIFIED researcher N CORRECT — ""No records found"" in Aabadi portal; auto ""Y"" was a name-resolution artifact"
+Seoni,Marjhor,Y,Y,N,Y,2.0,JOINT: definitional — auto counts any co-ownership (owners=2.0); SIPI means joint card-titling. Not a confirmed error (not browser-checked)
