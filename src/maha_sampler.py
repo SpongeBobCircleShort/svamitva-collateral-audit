@@ -29,6 +29,14 @@ try:
 except ImportError:
     from src.maha_api import MahabhulekhClient, other_rights, DISTRICTS, PFX, BASE
 
+def _digits(v) -> str:
+    """CSV numeric cells read back as floats ('102.0'); keep them as clean integer strings."""
+    s = str(v).strip()
+    if s.endswith(".0"):
+        s = s[:-2]
+    return "" if s in ("", "nan") else s
+
+
 CAPTCHA_MARKERS = ("captcha", "कॅप्चा", "कैप्चा", "invalid captcha", "verification")
 RECORD_MARKERS = ("इतर हक्क", "other rights", "भूमापन", "मिळकत", "भूधारणा", "खातेदार")
 
@@ -62,8 +70,8 @@ def run(data_dir: str, mobile: str, limit: int | None, pc_no: str, delay: float)
     c = MahabhulekhClient()
     for pos, (i, row) in enumerate(todo.iterrows(), 1):
         dist, code = row["district"], DISTRICTS.get(row["district"], "")
-        office, vill = str(row["office_code"]), str(row["village_code"])
-        number = str(row["pc_no"] or pc_no)
+        office, vill = _digits(row["office_code"]), _digits(row["village_code"])
+        number = _digits(row["pc_no"]) or str(pc_no)
         captcha = ""
         html = ""
         for attempt in range(3):
