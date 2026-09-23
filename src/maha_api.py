@@ -35,6 +35,10 @@ BASE = "https://bhulekh.mahabhumi.gov.in/"
 PFX = "ctl00$ContentPlaceHolder1$"
 PLACEHOLDERS = {"--निवडा--", "--Select Option--", "--Select--", ""}
 
+def _norm(s) -> str:
+    return re.sub(r"\s+", " ", str(s or "").strip().lower())
+
+
 RECORD_TYPES = {"satbara": "SelectSatbara", "8a": "Select8A",
                 "property_card": "SelectPC", "kprat": "SelectKPrat"}
 # radio index within rbtnSelectType (for the __doPostBack target rbtnSelectType$<idx>)
@@ -193,6 +197,33 @@ class MahabhulekhClient:
         self.villages(dist_code, tal_code, record_type)  # sets district+taluka state
         html = self._postback(PFX + "ddlVillForAll", {PFX + "ddlVillForAll": str(vill_code)})
         return self._options(html, "ContentPlaceHolder1_ddlsurveyno")
+
+    # ---- Property Card (gaothan / abadi — the SVAMITVA-equivalent record) ----
+    def pc_offices(self, dist_code: str) -> list[tuple[str, str]]:
+        """City-Survey / Land-Records offices (उप अधीक्षक भूमि अभिलेख) for a district — the Property
+        Card hierarchy's top level (not revenue talukas)."""
+        return self.talukas(dist_code, "property_card")
+
+    def property_card_villages(self, dist_code: str) -> list[dict]:
+        """Inventory of gaothan/abadi villages that HAVE a Property Card record in a district —
+        the Maharashtra analog of MP's abadi village list (existence signal, ungated). Each row:
+        {district_code, office_code, office, village_code, village}. City offices (urban CTS,
+        e.g. Pune City) list no gaothan villages and are skipped."""
+        out: list[dict] = []
+        for oc, oname in self.pc_offices(dist_code):
+            try:
+                vills = self.villages(dist_code, oc, "property_card")
+            except Exception:  # noqa: BLE001
+                continue
+            for vc, vn in vills:
+                out.append({"district_code": str(dist_code), "office_code": oc, "office": oname,
+                            "village_code": vc, "village": vn})
+        return out
+
+    def has_property_card(self, dist_code: str, village_name: str) -> bool:
+        """True if a gaothan Property Card record exists for the named village in the district."""
+        q = _norm(village_name)
+        return any(_norm(r["village"]) == q for r in self.property_card_villages(dist_code))
 
     # ---- gated record view (assisted / user-run) ---------------------------
     def fetch_record(self, *args, **kwargs):
