@@ -278,10 +278,12 @@ class MahabhulekhClient:
     def captcha_image(self, path: str) -> str:
         """Save THIS session's captcha (a base64 PNG embedded in the page as
         ContentPlaceHolder1_captchaImage) for the user to read. Returns the path."""
-        m = re.search(r'captchaImage[^>]*?src="data:image/[^;]+;base64,([^"]+)"', self._last or "")
+        # the img renders src BEFORE id: ...base64,XXXX" id="...captchaImage"
+        pat = r'base64,([A-Za-z0-9+/=]+)"\s+id="[^"]*captchaImage"'
+        m = re.search(pat, self._last or "")
         if not m:                                       # not in the last delta — re-read the page
             self._last = self.s.get(BASE, timeout=self.timeout).text
-            m = re.search(r'captchaImage[^>]*?src="data:image/[^;]+;base64,([^"]+)"', self._last)
+            m = re.search(pat, self._last)
         if not m:
             raise RuntimeError("captcha image not found in page")
         with open(path, "wb") as f:
