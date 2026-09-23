@@ -226,13 +226,57 @@ class MahabhulekhClient:
         return any(_norm(r["village"]) == q for r in self.property_card_villages(dist_code))
 
     # ---- gated record view (assisted / user-run) ---------------------------
-    def fetch_record(self, *args, **kwargs):
-        """The 7/12 or Property Card CONTENT (owners + इतर हक्क/Other Rights encumbrance) is gated
-        by a mobile number + captcha (likely OTP). Do this assisted, like MP's ror_sampler:
-        drive it in a browser / capture the request once, then parse Other Rights for बोजा/कर्ज
-        (the MP col-11 analog). Not automated here on purpose."""
-        raise NotImplementedError(
-            "Record view is mobile+captcha gated — run it assisted (see docs/maharashtra_portal.md).")
+    def fetch_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
+                     mobile: str, captcha: str, record_type: str = "property_card") -> str:
+        """Fetch a Property Card / 7/12 record's CONTENT (owners + इतर हक्क / Other Rights).
+        ASSISTED / USER-RUN: the view is gated by a mobile number + captcha, so YOU pass a mobile
+        and a captcha value you have read from the page (this code does not solve the captcha).
+        Steps: cascade to the village, set search type + type the survey/PC number, press Search,
+        then Submit with mobile+captcha. Returns the record HTML. If the portal then demands an
+        OTP, that step is manual (no OTP field is present in the base form). Parse the result with
+        other_rights()."""
+        self.villages(dist_code, tal_code, record_type)                 # sets district+taluka state
+        self._postback(PFX + "ddlVillForAll", {PFX + "ddlVillForAll": str(vill_code)})
+        # search type = survey number, type the number, press Search
+        f = dict(self.form)
+        f[PFX + "rbtnSearchType"] = "17"
+        f[PFX + "ddlSelectSearchType"] = "2"
+        f[PFX + "txtcsno"] = str(survey_no)
+        self.form = f
+        self._postback(PFX + "ddlSelectSearchType", {PFX + "ddlSelectSearchType": "2"})
+        # final view: mobile + captcha + Submit (full postback)
+        f = dict(self.form)
+        f[PFX + "txtcsno"] = str(survey_no)
+        f[PFX + "txtmobile1"] = str(mobile)
+        f[PFX + "txtcaptcha"] = str(captcha)
+        f["__EVENTTARGET"] = ""
+        f["__EVENTARGUMENT"] = ""
+        f[PFX + "btnmainsubmit"] = "Submit"
+        r = self.s.post(BASE, data=f, timeout=self.timeout)
+        r.raise_for_status()
+        return r.text
+
+
+# charge / encumbrance keywords in the Maharashtra "इतर हक्क / Other Rights" section — the
+# collateral signal (analog of MP RoR col 11). Free-text there, so keyword-matched.
+CHARGE_KW = ["बोजा", "कर्ज", "बंधक", "बँधक", "दृष्टिबंधक", "गहाण", "तारण", "बँक", "बैंक",
+             "mortgage", "hypothec", "loan", "charge", "lien", "bank", "cersai"]
+
+
+def other_rights(html: str) -> tuple[bool, list[str]]:
+    """(has_charge, matched_terms) from a Maharashtra 7/12 / Property Card record. Looks for a
+    bank charge / boja / karj (बोजा/कर्ज/बंधक) in the Other Rights (इतर हक्क) text. Returns the
+    matched keywords so a human can eyeball. VALIDATE against a real saved record (assisted) —
+    the section is free-text, not a fixed column."""
+    text = re.sub(r"<[^>]+>", " ", html)               # strip tags -> plain text
+    text = re.sub(r"\s+", " ", text)
+    low = text.lower()
+    hits = []
+    for kw in CHARGE_KW:
+        k = kw.lower()
+        if (k in low) if kw.isascii() else (kw in text):
+            hits.append(kw)
+    return (bool(hits), hits)
 
 
 if __name__ == "__main__":
