@@ -273,18 +273,19 @@ CHARGE_KW = ["बोजा", "कर्ज", "बंधक", "बँधक", "�
 
 
 def other_rights(html: str) -> tuple[bool, list[str]]:
-    """(has_charge, matched_terms) from a Maharashtra 7/12 / Property Card record. Looks for a
-    bank charge / boja / karj (बोजा/कर्ज/बंधक) in the Other Rights (इतर हक्क) text. Returns the
-    matched keywords so a human can eyeball. VALIDATE against a real saved record (assisted) —
-    the section is free-text, not a fixed column."""
+    """(has_charge, matched_terms) from a Maharashtra Property Card / 7/12 record. Isolates the
+    'Other Encumbrances/Rights :' section (up to 'Other Remarks :') — verified on a real Property
+    Card, that is the collateral field, the 7/12 analog of MP RoR col 11 — and keyword-matches a
+    charge (बोजा/कर्ज/बंधक/bank/CERSAI) within it; falls back to the whole record if the section
+    label isn't found. Returns matched terms so a human can eyeball. An empty section == no charge."""
     text = re.sub(r"<[^>]+>", " ", html)               # strip tags -> plain text
     text = re.sub(r"\s+", " ", text)
-    low = text.lower()
-    hits = []
-    for kw in CHARGE_KW:
-        k = kw.lower()
-        if (k in low) if kw.isascii() else (kw in text):
-            hits.append(kw)
+    m = re.search(r"(?:Other Encumbrances[^:]*|इतर बोजा[^:]*|इतर हक्क[^:]*):(.*?)"
+                  r"(?:Other Remarks|इतर शेरा|अभ्युक्त|Date\s+Transaction|$)", text, re.I | re.S)
+    scope = m.group(1).strip() if m else text          # the encumbrance section, else whole record
+    low = scope.lower()
+    hits = [kw for kw in CHARGE_KW
+            if (kw.lower() in low if kw.isascii() else kw in scope)]
     return (bool(hits), hits)
 
 
