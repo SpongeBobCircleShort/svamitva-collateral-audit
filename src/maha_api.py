@@ -253,29 +253,42 @@ class MahabhulekhClient:
         return panel or r.text
 
     # ---- gated record view (assisted / user-run) ---------------------------
-    def fetch_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
-                     mobile: str, captcha: str, record_type: str = "property_card") -> str:
-        """Fetch a Property Card / 7/12 record's CONTENT (owners + इतर हक्क / Other Rights).
-        ASSISTED / USER-RUN: the view is gated by a mobile number + captcha, so YOU pass a mobile
-        and a captcha value you have read from the page (this code does not solve the captcha).
-        Steps: cascade to the village, set search type + type the survey/PC number, press Search,
-        then Submit with mobile+captcha. Returns the record HTML. If the portal then demands an
-        OTP, that step is manual (no OTP field is present in the base form). Parse the result with
-        other_rights()."""
+    # The view is gated by mobile + captcha. Split so a caller can show the captcha (valid for the
+    # CURRENT session) BEFORE submitting: prepare_record() -> captcha_image() -> submit_record().
+    # Submitting with an empty captcha makes the server throw '0|error|500||', so a real captcha
+    # value (that YOU read — this code never solves it) is required.
+    def prepare_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
+                       record_type: str = "property_card") -> None:
+        """Cascade to the village, set search type + CTS/survey number, press Search (शोधा). Leaves
+        the session ready for submit_record(); Search itself needs no captcha."""
         self.villages(dist_code, tal_code, record_type)                 # sets district+office state
         self._postback(PFX + "ddlVillForAll", {PFX + "ddlVillForAll": str(vill_code)})
-        # search type = CTS/survey number + typed number, then Search (शोधा) — AJAX button
         self.form[PFX + "rbtnSearchType"] = "17"
         self.form[PFX + "ddlSelectSearchType"] = "2"
         self.form[PFX + "txtcsno"] = str(survey_no)
         self._ajax_button(PFX + "btnsearchfind", "Search",
                           {PFX + "rbtnSearchType": "17", PFX + "ddlSelectSearchType": "2",
                            PFX + "txtcsno": str(survey_no)})
-        # final view: mobile + captcha + Submit — AJAX button; record comes back in the UpdatePanel
+
+    def captcha_image(self, path: str) -> str:
+        """Save this session's current captcha image (for the user to read). Returns the path."""
+        r = self.s.get(BASE + "Images/ZC9Y.gif", timeout=self.timeout)
+        with open(path, "wb") as f:
+            f.write(r.content)
+        return path
+
+    def submit_record(self, survey_no: str, mobile: str, captcha: str) -> str:
+        """Final view: mobile + captcha + Submit (AJAX). Record comes back in the UpdatePanel."""
         return self._ajax_button(PFX + "btnmainsubmit", "Submit",
                                  {PFX + "txtcsno": str(survey_no),
                                   PFX + "txtmobile1": str(mobile),
                                   PFX + "txtcaptcha": str(captcha)})
+
+    def fetch_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
+                     mobile: str, captcha: str, record_type: str = "property_card") -> str:
+        """Convenience: prepare + submit in one call when the captcha is already known."""
+        self.prepare_record(dist_code, tal_code, vill_code, survey_no, record_type)
+        return self.submit_record(survey_no, mobile, captcha)
 
 
 # charge / encumbrance keywords in the Maharashtra "इतर हक्क / Other Rights" section — the

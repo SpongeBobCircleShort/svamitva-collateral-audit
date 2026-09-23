@@ -50,15 +50,9 @@ def _needs_captcha(html: str) -> bool:
     return any(m in low for m in CAPTCHA_MARKERS)
 
 
-def _save_captcha(client: MahabhulekhClient, data_dir: str) -> str:
-    """Save the current captcha image for the user to read. Returns the path or ''."""
-    try:
-        r = client.s.get(BASE + "Images/ZC9Y.gif", timeout=client.timeout)
-        p = os.path.join(data_dir, "maha_captcha.png")
-        open(p, "wb").write(r.content)
-        return p
-    except Exception:  # noqa: BLE001
-        return ""
+def _is_error(html: str) -> bool:
+    """ASP.NET async error delta (e.g. '0|error|500||') or an empty/near-empty response."""
+    return (not html) or len(html) < 60 or "|error|" in html[:40]
 
 
 def run(data_dir: str, mobile: str, limit: int | None, pc_no: str, delay: float):
@@ -70,31 +64,35 @@ def run(data_dir: str, mobile: str, limit: int | None, pc_no: str, delay: float)
     print(f"villages to sample: {len(todo)} (of {len(wl)})")
 
     c = MahabhulekhClient()
+    rec_dir = os.path.join(data_dir, "maha_records"); os.makedirs(rec_dir, exist_ok=True)
+    cap_path = os.path.join(data_dir, "maha_captcha.png")
     for pos, (i, row) in enumerate(todo.iterrows(), 1):
-        dist, code = row["district"], DISTRICTS.get(row["district"], "")
+        code = DISTRICTS.get(row["district"], "")
         office, vill = _digits(row["office_code"]), _digits(row["village_code"])
         number = _digits(row["pc_no"]) or str(pc_no)
-        captcha = ""
-        html = ""
+        html, note = "", ""
         for attempt in range(3):
             try:
-                html = c.fetch_record(code, office, vill, number, mobile, captcha, "property_card")
+                c.prepare_record(code, office, vill, number, "property_card")
+                c.captcha_image(cap_path)               # this session's captcha, for you to read
+                cap = input(f"[{pos}/{len(todo)}] {row['village']} — open {cap_path}, "
+                            f"type captcha (blank to skip): ").strip()
+                if not cap:
+                    note = "skipped (no captcha)"; break
+                html = c.submit_record(number, mobile, cap)
             except Exception as e:  # noqa: BLE001
-                wl.loc[i, "note"] = f"fetch err: {str(e)[:80]}"; break
-            if not _needs_captcha(html):
-                break                                   # success (session carried or captcha ok)
-            path = _save_captcha(c, data_dir)           # portal wants a captcha
-            captcha = input(f"[{pos}/{len(todo)}] {row['village']}: type captcha from {path}: ").strip()
-        # dump the raw response so the result can be verified (real record vs error/captcha page)
-        rec_dir = os.path.join(data_dir, "maha_records"); os.makedirs(rec_dir, exist_ok=True)
-        if html:
+                note = f"err: {str(e)[:80]}"; continue
+            if _is_error(html) or _needs_captcha(html):
+                print("   -> error/invalid captcha, retrying…"); note = "error/invalid captcha"; continue
+            note = ""; break                            # got a real record
+        if html and not _is_error(html):
             open(os.path.join(rec_dir, f"{row['district']}_{vill}.html"), "w",
                  encoding="utf-8").write(html)
-        has, hits = other_rights(html)
-        wl.loc[i, ["pc_no", "other_rights_charge", "note"]] = [
-            number, ("Y" if has else "N"), (",".join(hits) if hits else "")]
+        has, hits = other_rights(html) if (html and not _is_error(html)) else (False, [])
+        charge = ("Y" if has else "N") if (html and not _is_error(html)) else ""
+        wl.loc[i, ["pc_no", "other_rights_charge", "note"]] = [number, charge, ",".join(hits) or note]
         wl.to_csv(wl_path, index=False)               # checkpoint
-        print(f"[{pos}/{len(todo)}] {row['district']}/{row['village']}: charge={'Y' if has else 'N'} {hits}")
+        print(f"[{pos}/{len(todo)}] {row['district']}/{row['village']}: charge={charge or '—'} {hits} {note}")
         time.sleep(delay)
 
     print(f"\ndone -> {wl_path}")
