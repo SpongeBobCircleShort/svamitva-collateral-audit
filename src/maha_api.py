@@ -24,6 +24,7 @@ Usage:
 from __future__ import annotations
 
 import re
+import base64
 import requests
 
 try:
@@ -69,12 +70,14 @@ class MahabhulekhClient:
             "Referer": BASE,
         })
         self.form: dict[str, str] = {}
+        self._last = ""                 # raw text of the most recent response (holds the captcha img)
         self._load()
 
     # ---- ASP.NET form plumbing ---------------------------------------------
     def _load(self) -> None:
         r = self.s.get(BASE, timeout=self.timeout)
         r.raise_for_status()
+        self._last = r.text
         self.form = self._parse_form(r.text)
 
     @staticmethod
@@ -141,6 +144,7 @@ class MahabhulekhClient:
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         })
         r.raise_for_status()
+        self._last = r.text
         panel_html = ""
         for typ, idv, content in self._parse_delta(r.text):
             if typ == "hiddenField":
@@ -243,6 +247,7 @@ class MahabhulekhClient:
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         })
         r.raise_for_status()
+        self._last = r.text
         panel = ""
         for typ, idv, content in self._parse_delta(r.text):
             if typ == "hiddenField":
@@ -271,10 +276,16 @@ class MahabhulekhClient:
                            PFX + "txtcsno": str(survey_no)})
 
     def captcha_image(self, path: str) -> str:
-        """Save this session's current captcha image (for the user to read). Returns the path."""
-        r = self.s.get(BASE + "Images/ZC9Y.gif", timeout=self.timeout)
+        """Save THIS session's captcha (a base64 PNG embedded in the page as
+        ContentPlaceHolder1_captchaImage) for the user to read. Returns the path."""
+        m = re.search(r'captchaImage[^>]*?src="data:image/[^;]+;base64,([^"]+)"', self._last or "")
+        if not m:                                       # not in the last delta — re-read the page
+            self._last = self.s.get(BASE, timeout=self.timeout).text
+            m = re.search(r'captchaImage[^>]*?src="data:image/[^;]+;base64,([^"]+)"', self._last)
+        if not m:
+            raise RuntimeError("captcha image not found in page")
         with open(path, "wb") as f:
-            f.write(r.content)
+            f.write(base64.b64decode(m.group(1)))
         return path
 
     def submit_record(self, survey_no: str, mobile: str, captcha: str) -> str:
