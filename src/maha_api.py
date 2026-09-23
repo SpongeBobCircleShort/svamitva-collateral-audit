@@ -225,6 +225,20 @@ class MahabhulekhClient:
         q = _norm(village_name)
         return any(_norm(r["village"]) == q for r in self.property_card_villages(dist_code))
 
+    def _full_post(self, overrides: dict[str, str]) -> str:
+        """A FULL (non-AJAX) postback — strips the UpdatePanel fields so btnsearchfind /
+        btnmainsubmit render the whole page (an async submit returns '0|error|500||')."""
+        f = {k: v for k, v in self.form.items()
+             if k not in ("__ASYNCPOST", self.SCRIPTMANAGER)}
+        f["__EVENTTARGET"] = ""
+        f["__EVENTARGUMENT"] = ""
+        f["__LASTFOCUS"] = ""
+        f.update(overrides)
+        r = self.s.post(BASE, data=f, timeout=self.timeout)
+        r.raise_for_status()
+        self.form = self._parse_form(r.text)
+        return r.text
+
     # ---- gated record view (assisted / user-run) ---------------------------
     def fetch_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
                      mobile: str, captcha: str, record_type: str = "property_card") -> str:
@@ -237,24 +251,19 @@ class MahabhulekhClient:
         other_rights()."""
         self.villages(dist_code, tal_code, record_type)                 # sets district+taluka state
         self._postback(PFX + "ddlVillForAll", {PFX + "ddlVillForAll": str(vill_code)})
-        # search type = survey number, type the number, press Search
-        f = dict(self.form)
-        f[PFX + "rbtnSearchType"] = "17"
-        f[PFX + "ddlSelectSearchType"] = "2"
-        f[PFX + "txtcsno"] = str(survey_no)
-        self.form = f
-        self._postback(PFX + "ddlSelectSearchType", {PFX + "ddlSelectSearchType": "2"})
-        # final view: mobile + captcha + Submit (full postback)
-        f = dict(self.form)
-        f[PFX + "txtcsno"] = str(survey_no)
-        f[PFX + "txtmobile1"] = str(mobile)
-        f[PFX + "txtcaptcha"] = str(captcha)
-        f["__EVENTTARGET"] = ""
-        f["__EVENTARGUMENT"] = ""
-        f[PFX + "btnmainsubmit"] = "Submit"
-        r = self.s.post(BASE, data=f, timeout=self.timeout)
-        r.raise_for_status()
-        return r.text
+        # search type = survey number + typed number, then press Search (शोधा) — FULL postback
+        self.form[PFX + "rbtnSearchType"] = "17"
+        self.form[PFX + "ddlSelectSearchType"] = "2"
+        self.form[PFX + "txtcsno"] = str(survey_no)
+        self._full_post({PFX + "btnsearchfind": "Search",
+                         PFX + "rbtnSearchType": "17",
+                         PFX + "ddlSelectSearchType": "2",
+                         PFX + "txtcsno": str(survey_no)})
+        # final view: mobile + captcha + Submit — FULL postback (returns the record HTML)
+        return self._full_post({PFX + "btnmainsubmit": "Submit",
+                                PFX + "txtcsno": str(survey_no),
+                                PFX + "txtmobile1": str(mobile),
+                                PFX + "txtcaptcha": str(captcha)})
 
 
 # charge / encumbrance keywords in the Maharashtra "इतर हक्क / Other Rights" section — the

@@ -75,6 +75,11 @@ def run(data_dir: str, mobile: str, limit: int | None, pc_no: str, delay: float)
                 break                                   # success (session carried or captcha ok)
             path = _save_captcha(c, data_dir)           # portal wants a captcha
             captcha = input(f"[{pos}/{len(todo)}] {row['village']}: type captcha from {path}: ").strip()
+        # dump the raw response so the result can be verified (real record vs error/captcha page)
+        rec_dir = os.path.join(data_dir, "maha_records"); os.makedirs(rec_dir, exist_ok=True)
+        if html:
+            open(os.path.join(rec_dir, f"{row['district']}_{vill}.html"), "w",
+                 encoding="utf-8").write(html)
         has, hits = other_rights(html)
         wl.loc[i, ["pc_no", "other_rights_charge", "note"]] = [
             number, ("Y" if has else "N"), (",".join(hits) if hits else "")]
