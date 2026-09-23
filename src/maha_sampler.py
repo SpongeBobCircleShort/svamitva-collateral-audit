@@ -38,7 +38,9 @@ def _digits(v) -> str:
 
 
 CAPTCHA_MARKERS = ("captcha", "कॅप्चा", "कैप्चा", "invalid captcha", "verification")
-RECORD_MARKERS = ("इतर हक्क", "other rights", "भूमापन", "मिळकत", "भूधारणा", "खातेदार")
+# markers seen on a real rendered Property Card (transliterated-English + Marathi)
+RECORD_MARKERS = ("property card", "other encumbrances", "name of the holder", "मालमत्ता पत्रक",
+                  "इतर बोजा", "encumbrances/rights", "भूमापन", "खातेदार")
 
 
 def _needs_captcha(html: str) -> bool:

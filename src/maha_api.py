@@ -225,19 +225,32 @@ class MahabhulekhClient:
         q = _norm(village_name)
         return any(_norm(r["village"]) == q for r in self.property_card_villages(dist_code))
 
-    def _full_post(self, overrides: dict[str, str]) -> str:
-        """A FULL (non-AJAX) postback — strips the UpdatePanel fields so btnsearchfind /
-        btnmainsubmit render the whole page (an async submit returns '0|error|500||')."""
-        f = {k: v for k, v in self.form.items()
-             if k not in ("__ASYNCPOST", self.SCRIPTMANAGER)}
+    def _ajax_button(self, button: str, value: str, overrides: dict[str, str]) -> str:
+        """AJAX UpdatePanel postback triggered by a BUTTON (btnsearchfind / btnmainsubmit):
+        __EVENTTARGET empty, ScriptManager=UpdatePanel1|<button>, button name present, __ASYNCPOST.
+        This matches the browser's working submit (a full postback returns '0|error|500||').
+        Returns the UpdatePanel HTML (the rendered record for btnmainsubmit)."""
+        f = dict(self.form)
+        f.update(overrides)
+        f[self.SCRIPTMANAGER] = f"{self.UPDATEPANEL}|{button}"
         f["__EVENTTARGET"] = ""
         f["__EVENTARGUMENT"] = ""
-        f["__LASTFOCUS"] = ""
-        f.update(overrides)
-        r = self.s.post(BASE, data=f, timeout=self.timeout)
+        f["__ASYNCPOST"] = "true"
+        f[button] = value
+        r = self.s.post(BASE, data=f, timeout=self.timeout, headers={
+            "X-MicrosoftAjax": "Delta=true",
+            "X-Requested-With": "XMLHttpRequest",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        })
         r.raise_for_status()
-        self.form = self._parse_form(r.text)
-        return r.text
+        panel = ""
+        for typ, idv, content in self._parse_delta(r.text):
+            if typ == "hiddenField":
+                f[idv] = content
+            elif typ == "updatePanel":
+                panel += content
+        self.form = f
+        return panel or r.text
 
     # ---- gated record view (assisted / user-run) ---------------------------
     def fetch_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
@@ -249,21 +262,20 @@ class MahabhulekhClient:
         then Submit with mobile+captcha. Returns the record HTML. If the portal then demands an
         OTP, that step is manual (no OTP field is present in the base form). Parse the result with
         other_rights()."""
-        self.villages(dist_code, tal_code, record_type)                 # sets district+taluka state
+        self.villages(dist_code, tal_code, record_type)                 # sets district+office state
         self._postback(PFX + "ddlVillForAll", {PFX + "ddlVillForAll": str(vill_code)})
-        # search type = survey number + typed number, then press Search (शोधा) — FULL postback
+        # search type = CTS/survey number + typed number, then Search (शोधा) — AJAX button
         self.form[PFX + "rbtnSearchType"] = "17"
         self.form[PFX + "ddlSelectSearchType"] = "2"
         self.form[PFX + "txtcsno"] = str(survey_no)
-        self._full_post({PFX + "btnsearchfind": "Search",
-                         PFX + "rbtnSearchType": "17",
-                         PFX + "ddlSelectSearchType": "2",
-                         PFX + "txtcsno": str(survey_no)})
-        # final view: mobile + captcha + Submit — FULL postback (returns the record HTML)
-        return self._full_post({PFX + "btnmainsubmit": "Submit",
-                                PFX + "txtcsno": str(survey_no),
-                                PFX + "txtmobile1": str(mobile),
-                                PFX + "txtcaptcha": str(captcha)})
+        self._ajax_button(PFX + "btnsearchfind", "Search",
+                          {PFX + "rbtnSearchType": "17", PFX + "ddlSelectSearchType": "2",
+                           PFX + "txtcsno": str(survey_no)})
+        # final view: mobile + captcha + Submit — AJAX button; record comes back in the UpdatePanel
+        return self._ajax_button(PFX + "btnmainsubmit", "Submit",
+                                 {PFX + "txtcsno": str(survey_no),
+                                  PFX + "txtmobile1": str(mobile),
+                                  PFX + "txtcaptcha": str(captcha)})
 
 
 # charge / encumbrance keywords in the Maharashtra "इतर हक्क / Other Rights" section — the
