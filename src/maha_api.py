@@ -36,6 +36,10 @@ BASE = "https://bhulekh.mahabhumi.gov.in/"
 PFX = "ctl00$ContentPlaceHolder1$"
 PLACEHOLDERS = {"--निवडा--", "--Select Option--", "--Select--", ""}
 
+# The portal only format-checks the mobile field (^[6-9][0-9]{9}$) — no OTP, never verified — so a
+# throwaway number satisfies the gate and keeps any real phone number out of the pipeline.
+DUMMY_MOBILE = "9000000000"
+
 def _norm(s) -> str:
     return re.sub(r"\s+", " ", str(s or "").strip().lower())
 
@@ -262,6 +266,11 @@ class MahabhulekhClient:
     # CURRENT session) BEFORE submitting: prepare_record() -> captcha_image() -> submit_record().
     # Submitting with an empty captcha makes the server throw '0|error|500||', so a real captcha
     # value (that YOU read — this code never solves it) is required.
+    #
+    # The MOBILE field, by contrast, is NOT verified: the portal only format-checks it client-side
+    # (validateMobileNumber -> /^[6-9][0-9]{9}$/, no OTP round-trip). So no real number is needed —
+    # submit_record() defaults to a throwaway format-valid number (DUMMY_MOBILE). This keeps the
+    # user's real phone out of the loop entirely; the only human step left is reading the captcha.
     def prepare_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
                        record_type: str = "property_card") -> None:
         """Cascade to the village, set search type + CTS/survey number, press Search (शोधा). Leaves
@@ -290,18 +299,19 @@ class MahabhulekhClient:
             f.write(base64.b64decode(m.group(1)))
         return path
 
-    def submit_record(self, survey_no: str, mobile: str, captcha: str) -> str:
-        """Final view: mobile + captcha + Submit (AJAX). Record comes back in the UpdatePanel."""
+    def submit_record(self, survey_no: str, captcha: str, mobile: str = "") -> str:
+        """Final view: mobile + captcha + Submit (AJAX). Record comes back in the UpdatePanel.
+        mobile defaults to a throwaway (DUMMY_MOBILE) since the portal never verifies it."""
         return self._ajax_button(PFX + "btnmainsubmit", "Submit",
                                  {PFX + "txtcsno": str(survey_no),
-                                  PFX + "txtmobile1": str(mobile),
+                                  PFX + "txtmobile1": str(mobile or DUMMY_MOBILE),
                                   PFX + "txtcaptcha": str(captcha)})
 
     def fetch_record(self, dist_code: str, tal_code: str, vill_code: str, survey_no: str,
-                     mobile: str, captcha: str, record_type: str = "property_card") -> str:
+                     captcha: str, mobile: str = "", record_type: str = "property_card") -> str:
         """Convenience: prepare + submit in one call when the captcha is already known."""
         self.prepare_record(dist_code, tal_code, vill_code, survey_no, record_type)
-        return self.submit_record(survey_no, mobile, captcha)
+        return self.submit_record(survey_no, captcha, mobile)
 
 
 # charge / encumbrance keywords in the Maharashtra "इतर हक्क / Other Rights" section — the
