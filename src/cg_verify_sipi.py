@@ -195,6 +195,11 @@ def run(sheet: str, data_dir: str, limit: int | None, delay: float):
                     ht = r["holding_type"]
                     joint = "NA" if (r["is_govt"] or r["is_abadi"]) else \
                             ("Y" if "संयुक्त" in ht else ("N" if "अकेला" in ht else ""))
+                    # auto_textual = a land record renders for the sampled survey no (literal
+                    # "textual record exists"). It is NOT abadi-specific: CG khasra numbers do not
+                    # isolate abadi tenure, so whether the sampled parcel is a true rural-HABITATION
+                    # record is carried by land_type (abadi vs govt vs private-agri), which is the
+                    # real discriminator for the SIPI habitation question.
                     rec.update({
                         "auto_textual": "Y" if r["tenure"] else "N",
                         "land_type": lt,
