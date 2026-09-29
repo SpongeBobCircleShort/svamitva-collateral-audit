@@ -20,3 +20,5 @@ data/khasra_request.json
 data/**/*captcha*.png
 data/**/gj_records/
 data/**/maha_records/
+data/maha_records/
+data/maha_captcha.png

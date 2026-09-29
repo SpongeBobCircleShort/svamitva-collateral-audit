@@ -1,0 +1,40 @@
+{
+  "state": "Maharashtra",
+  "official_national_vetted": {
+    "loans_count": 11147,
+    "loan_amount_cr": 1713.68,
+    "as_of": "2026-08-05",
+    "url": "https://aninews.in/news/national/general-news/330-lakh-villages-mapped-under-svamitva-scheme-rs-1713-cr-loans-disbursed-using-property-cards20260805182142/"
+  },
+  "mh_numerator_upper_bound": 99,
+  "mh_reported_separately": false,
+  "residual_note": {
+    "loans_count": 99,
+    "loan_amount_cr": 10.65,
+    "named_states": [
+      "Rajasthan",
+      "Madhya Pradesh",
+      "Jammu & Kashmir",
+      "Ladakh"
+    ],
+    "as_of": "2026-08-05"
+  },
+  "record_charges_observed": 0,
+  "cards_checked": 2,
+  "sample_rows": [
+    {
+      "district": "Nandurbar",
+      "village": "तोरणमाळ(जुने)",
+      "charge": "N",
+      "note": "इतर भार empty; holder ancestral; PU-ID 50018065308"
+    },
+    {
+      "district": "Pune",
+      "village": "अभेपुरी",
+      "charge": "N",
+      "note": "abhepuri CTS1: holder Pol (2023); Other Encumbrances blank; verified in-browser"
+    }
+  ],
+  "collateral_nominal": true,
+  "verdict": "Maharashtra is not separately reported in the parliamentary loan reply; the residual leaves at most 99 card-backed loans for every unnamed state+UT combined, so MH's count is nominal by construction. The captcha-gated Property Card sample confirms it on the record: 0 registered charge(s) across 2 gaothan card(s) checked. The card's collateral function is nominal, not reflected in the Property Card record."
+}
