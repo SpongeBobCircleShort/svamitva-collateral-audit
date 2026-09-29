@@ -1,0 +1,91 @@
+District,Tehsil,Village,Survey no.,Textual record — sheet,Textual record — portal,Textual: match?,Land type — portal,Spatial record — sheet,Spatial record — portal,Spatial: match?,Mutation record — portal,Joint titling — sheet,Joint titling — portal,Joint titling: match?,Note
+Balod,Balod,Khairtarai,236,Y,Y,OK,abadi,,N,,Y,N,,,abadi: joint NA
+Balod,Balod,Sundra,330,Y,Y,OK,abadi,,N,,Y,N,,,abadi: joint NA
+Balod,Gurur,Pikaripar,261,N,Y,MISMATCH,govt,,Y,,Y,N,,,govt: joint NA
+Balod,Gurur,Sangli,817,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Balodabazar-Bhatapara,Balodabazar,Kokadi,780,N,,,,,,,,N,,,village not matched (uncomparable)
+Balodabazar-Bhatapara,Balodabazar,Khairghata,176,N,Y,MISMATCH,private-agri,,Y,,Y,,N,,
+Balodabazar-Bhatapara,Sonakhan,Sonakhan,-,N,,,,,,,,N,,,tehsil not matched (uncomparable)
+Balodabazar-Bhatapara,Sonakhan,Pakrid,81,N,,,,,,,,N,,,tehsil not matched (uncomparable)
+Balrampur-Ramanujganj,Balrampur,Tangar Mahari,182,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Balrampur-Ramanujganj,Balrampur,Turridih,210,Y,Y,OK,govt,,N,,Y,N,,,govt: joint NA
+Balrampur-Ramanujganj,Raghunathnagar,Gurmuti,20,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Balrampur-Ramanujganj,Raghunathnagar,Lodhi,232,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Bemetara,Bemetara,Hathmudi,150,Y,Y,OK,private-agri,,Y,,Y,N,,,
+Bemetara,Bemetara,Tala,275,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Bemetara,Bhimbhauri,Nawagaon,49,Y,Y,OK,private-agri,,Y,,Y,Y,N,MISMATCH,
+Bemetara,Bhimbhauri,Kota,248,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Bilaspur,Bodri,Nagpura,249,N,Y,MISMATCH,govt,,Y,,Y,N,,,govt: joint NA
+Bilaspur,Bodri,Khapra Khol,15/4,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Bilaspur,Takhatpur,Sagar,666,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Bilaspur,Takhatpur,Limhi,105,N,Y,MISMATCH,private-agri,,Y,,Y,N,,,
+Dakshin Bastar Dantewada,Gidam,Jhodiyawadam,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Dakshin Bastar Dantewada,Gidam,Siyanar,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Dakshin Bastar Dantewada,Barsur,Gutoli,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Dakshin Bastar Dantewada,Barsur,Chhindnar,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Dhamtari,Dhamtari,Ratna Bandha (Og),148,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Dhamtari,Dhamtari,Shyamtrai (Og),480,Y,,,,,,,,N,,,village not matched (uncomparable)
+Dhamtari,Nagri,Gondlanala,173,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Dhamtari,Nagri,Gendra,445,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Durg,Durg,Belaudi,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Durg,Durg,Malood,374,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Durg,Patan,Parewadih,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Durg,Patan,Mahka Khurd,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Gariyaband,Gariyaband,Bhaisamuda,30,Y,Y,OK,abadi,,Y,,Y,N,,,abadi: joint NA
+Gariyaband,Gariyaband,Gahandar,36,N,Y,MISMATCH,govt,,Y,,Y,,,,govt: joint NA
+Gariyaband,Mainpur,Kodomali,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Gaurela-Pendra-Marwahi,Pendra Road,Khodri,34,N,Y,MISMATCH,govt,,Y,,Y,,,,govt: joint NA
+Gaurela-Pendra-Marwahi,Marwahi,Mahora,251,Y,Y,OK,abadi,,Y,,Y,N,,,abadi: joint NA
+Gaurela-Pendra-Marwahi,Marwahi,Andi,439,N,Y,MISMATCH,abadi,,Y,,Y,,,,abadi: joint NA
+Janjgir-Champa,Janjgir,Khaira,130,Y,Y,OK,govt,,N,,Y,N,,,govt: joint NA
+Janjgir-Champa,Janjgir,Sarkhon,1584/2,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Janjgir-Champa,Pamgarh,Chorbhatti,268/2,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Janjgir-Champa,Pamgarh,Jogidipa,94,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Jashpur,Kunkuri,Dumartoli,-,N,,,,,,,,N,,,tehsil not matched (uncomparable)
+Jashpur,Kunkuri,Bhelwatoli,-,N,,,,,,,,N,,,tehsil not matched (uncomparable)
+Jashpur,Bagicha,Jurgum,-,Y,,,,,,,,N,,,tehsil not matched (uncomparable)
+Kabeerdham,Kawardha,Talpur (Part),24/4 ??.?. 30/3,N,N,OK,,,,,,,,,no khasra record for sampled survey no
+Kabeerdham,Kawardha,Ghothiya (Part),-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Kabeerdham,Kukdur,Ghoghra Kalan,62,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Kabeerdham,Kukdur,Murki,102,N,Y,MISMATCH,govt,,Y,,Y,,,,govt: joint NA
+Khairagarh-Chhuikhadan-Gandai,Khairagarh,Muska,82,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Khairagarh-Chhuikhadan-Gandai,Khairagarh,Hirawahi,108,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Khairagarh-Chhuikhadan-Gandai,Salhewara,Gerukhadan,68,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Khairagarh-Chhuikhadan-Gandai,Salhewara,Murum,32,Y,Y,OK,abadi,,Y,,Y,N,,,abadi: joint NA
+Kondagaon,Makdi,Torondi,138,N,Y,MISMATCH,govt,,Y,,Y,,,,govt: joint NA
+Kondagaon,Makdi,Chhatodi,1/83,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Kondagaon,Baderajpur,Marangpuri,185,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Kondagaon,Baderajpur,Hatma,94/1,N,Y,MISMATCH,govt,,N,,Y,N,,,govt: joint NA
+Korba,Korba,Kudurmal,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Korba,Korba,Devermal,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Korba,Pasan,Sirki,136,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Korba,Pasan,Jatga,-,N,Y,MISMATCH,private-agri,,N,,Y,N,N,OK,
+Korea,Baikunthpur,Amapara,678,Y,,,,,,,,Y,,,tehsil not matched (uncomparable)
+Korea,Baikunthpur,Salka,235/1,Y,,,,,,,,N,,,tehsil not matched (uncomparable)
+Korea,Sonhat,Kerajharia,62,Y,,,,,,,,Y,,,tehsil not matched (uncomparable)
+Korea,Sonhat,Angwahi,109,Y,,,,,,,,Y,,,tehsil not matched (uncomparable)
+Mahasamund,Mahasamund,Kharora,1083,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Mahasamund,Mahasamund,Paterapali,373,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Mahasamund,Saraipali,Saraipali,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Mahasamund,Saraipali,Gidhamuda,25,N,Y,MISMATCH,private-agri,,Y,,Y,N,Y,MISMATCH,
+Mohla-Manpur-Ambagarh Chouki,Mohla,Bhursatola,81,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Mohla-Manpur-Ambagarh Chouki,Mohla,Thelkadand,27,Y,Y,OK,private-agri,,Y,,Y,Y,,,
+Mohla-Manpur-Ambagarh Chouki,Aundhi,Alkanhar,47,N,Y,MISMATCH,govt,,Y,,Y,,,,govt: joint NA
+Narayanpur,Narayanpur,Karalkha,145/1,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Narayanpur,Narayanpur,Dugabengal,310,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Narayanpur,Chhotedongar,Kanera,2,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Rajnandgaon,Dongargaon,Sangin Kachhar,373,Y,,,,,,,,N,,,village not matched (uncomparable)
+Rajnandgaon,Chhuriya,Janakpur,226,N,Y,MISMATCH,govt,,Y,,Y,,,,govt: joint NA
+Rajnandgaon,Chhuriya,Kubradih,88,Y,Y,OK,private-agri,,Y,,Y,Y,N,MISMATCH,
+Sakti,Sakti,Harethi,451,Y,Y,OK,private-agri,,N,,Y,N,N,OK,
+Sakti,Sakti,Sipahimuda,194,Y,Y,OK,govt,,N,,Y,N,,,govt: joint NA
+Sakti,Chandrapur,Darri,42,Y,Y,OK,abadi,,Y,,Y,Y,,,abadi: joint NA
+Sakti,Chandrapur,Baghanipali,182/1,Y,Y,OK,abadi,,Y,,Y,N,,,abadi: joint NA
+Surajpur,Surajpur,Nareshpur,49,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Surajpur,Surajpur,Bharatpur,583,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Surajpur,Biharpur,Kolhuwa,1,Y,Y,OK,govt,,Y,,Y,Y,,,govt: joint NA
+Surajpur,Biharpur,Biharpur,1,Y,Y,OK,govt,,Y,,Y,N,,,govt: joint NA
+Surguja,Ambikapur,Bishunpur,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Surguja,Ambikapur,Manik Prakashpur Alias Khukhari,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Surguja,Sitapur,Sontarai,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
+Surguja,Sitapur,Murta,-,N,N,OK,,,,,,N,,,no khasra record for sampled survey no
