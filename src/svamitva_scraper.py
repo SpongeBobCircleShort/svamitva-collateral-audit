@@ -33,7 +33,8 @@ try:
 except ImportError:  # run as a script, not a module
     from dwr import DwrClient
 
-STATE = 23  # Madhya Pradesh (LGD / SVAMITVA state code)
+STATE = 23  # default: Madhya Pradesh (LGD / SVAMITVA state code); pass --state to override
+STATE_NAMES = {23: "Madhya Pradesh", 22: "Chhattisgarh", 24: "Gujarat"}
 
 
 def _db(path: str) -> sqlite3.Connection:
@@ -58,14 +59,16 @@ def _db(path: str) -> sqlite3.Connection:
     return con
 
 
-def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: float):
+def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: float,
+           state: int = STATE):
     os.makedirs(data_dir, exist_ok=True)
     dbpath = os.path.join(data_dir, "svamitva.sqlite")
     con = _db(dbpath)
     c = DwrClient(delay=delay)
 
-    districts = c.call("getPropertyCardDistributedCount", STATE)
-    print(f"[districts] {len(districts)} found for MP")
+    sname = STATE_NAMES.get(state, f"state {state}")
+    districts = c.call("getPropertyCardDistributedCount", state)
+    print(f"[districts] {len(districts)} found for {sname}")
     for d in districts:
         con.execute(
             "INSERT OR REPLACE INTO districts VALUES (?,?,?,?,?,?,?,?)",
@@ -86,11 +89,11 @@ def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: f
         if dcode in done:
             print(f"[{di}/{len(districts)}] {dname} ({dcode}) — already done, skip")
             continue
-        blocks = c.call("getBlockPropertyCardDistributedCount", STATE, dcode)
+        blocks = c.call("getBlockPropertyCardDistributedCount", state, dcode)
         nvill = 0
         for b in blocks:
             bcode = b["code"]
-            villages = c.call("getVillagePropertyCardDistributedCount", STATE, dcode, bcode)
+            villages = c.call("getVillagePropertyCardDistributedCount", state, dcode, bcode)
             for v in villages:
                 con.execute(
                     "INSERT OR REPLACE INTO villages VALUES (?,?,?,?,?,?,?,?,?,?,?)",
@@ -118,8 +121,9 @@ def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: f
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-dir", default="data")
+    ap.add_argument("--state", type=int, default=STATE, help="SVAMITVA/LGD state code (23=MP, 22=CG)")
     ap.add_argument("--district", type=int, default=None, help="single SVAMITVA district code")
     ap.add_argument("--limit", type=int, default=None, help="only first N districts")
     ap.add_argument("--delay", type=float, default=0.4, help="base politeness delay (s)")
     a = ap.parse_args()
-    scrape(a.data_dir, a.district, a.limit, a.delay)
+    scrape(a.data_dir, a.district, a.limit, a.delay, a.state)
