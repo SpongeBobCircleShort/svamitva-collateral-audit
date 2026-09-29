@@ -13,6 +13,12 @@ Seeded from the Lok Sabha reply (Ministry of Panchayati Raj), loan data as on 20
   Ladakh               9 loans / Rs 1.61 cr
   ALL INDIA       11,147 loans / Rs 1,713.68 cr
 
+Maharashtra is NOT separately reported. Only four entities break out (RJ+MP+J&K+Ladakh =
+11,048 loans); the national total is 11,147. So every remaining state and UT COMBINED shares a
+residual of 99 loans. Maharashtra's SVAMITVA-backed loan count is therefore bounded in [0, 99]
+— nominal by construction — even though MH has issued cards at scale. This residual bound is the
+Maharashtra numerator (see residual_others() / maha_state_total()).
+
 The CSV is the editable source of truth: add district rows (e.g. from an RTI reply or a
 readable SLBC table) with level=district and they flow straight into the dashboard.
 
@@ -40,12 +46,20 @@ _RS = "Rajya Sabha written reply, Ministry of Panchayati Raj"
 _SEC = "News report (secondary) citing a parliamentary reply"
 _PROV = "PROVISIONAL — single secondary source; House attribution unresolved; primary annexure not retrieved"
 
+_RESID = ("RESIDUAL UPPER BOUND — state not separately reported; national total minus the four "
+          "named states (RJ+MP+J&K+Ladakh = 11,048) leaves 99 loans for ALL remaining states+UTs "
+          "COMBINED, so this state's card-backed loans are bounded in [0, 99] — nominal.")
+
 SEED = [
     # UNVETTED state splits (kept for provenance, excluded from the live verdict)
     ["state", "Madhya Pradesh", "", 2202, 177.77, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
     ["state", "Rajasthan", "", 8808, 1519.68, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
     ["state", "Jammu & Kashmir", "", 29, 3.97, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
     ["state", "Ladakh", "", 9, 1.61, _SEC, "SVAMITVA-backed loans (state-wise)", "2026-08", "2026-08-05", _KL, False, _PROV],
+    # Not separately reported -> residual upper bound only (all unnamed states+UTs share 99)
+    ["state", "Maharashtra", "", 99, 0.0, _RS, "SVAMITVA-backed loans (residual bound)", "2026-08-05", "2026-08-05", _ANI, False, _RESID],
+    ["state", "Gujarat", "", 99, 0.0, _RS, "SVAMITVA-backed loans (residual bound)", "2026-08-05", "2026-08-05", _ANI, False, _RESID],
+    ["state", "Chhattisgarh", "", 99, 0.0, _RS, "SVAMITVA-backed loans (residual bound)", "2026-08-05", "2026-08-05", _ANI, False, _RESID],
     # VETTED national context (wire-reported RS reply)
     ["national", "ALL INDIA", "", 11147, 1713.68, _RS, "SVAMITVA-backed loans (national total)", "2026-08-05", "2026-08-05", _ANI, True, "national total, wire-reported (ANI)"],
 ]
@@ -79,6 +93,47 @@ def mp_state_total(data_dir: str = "data") -> dict | None:
             "as_of": r.as_of, "url": r.url}
 
 
+_NAMED_STATES = ("Rajasthan", "Madhya Pradesh", "Jammu & Kashmir", "Ladakh")
+
+
+def residual_others(data_dir: str = "data") -> dict | None:
+    """National total minus the separately-named states = loans shared by ALL other states+UTs.
+    This is the upper bound on any single unnamed state's card-backed loans (e.g. Maharashtra)."""
+    df = load(data_dir)
+    nat = df[(df.level == "national") & df.vetted]
+    if nat.empty:
+        return None
+    named = df[(df.level == "state") & df.state.isin(_NAMED_STATES)]
+    resid_loans = int(nat.iloc[0].loans_count) - int(named.loans_count.sum())
+    resid_cr = round(float(nat.iloc[0].loan_amount_cr) - float(named.loan_amount_cr.sum()), 2)
+    return {"loans_count": resid_loans, "loan_amount_cr": resid_cr,
+            "named_states": list(_NAMED_STATES), "as_of": nat.iloc[0].as_of}
+
+
+def state_upper_bound(state: str, data_dir: str = "data") -> dict:
+    """Numerator for a state NOT separately named in the loan reply: an upper bound only, equal to
+    the residual (all unnamed states+UTs combined). If the state IS named, return its reported count."""
+    df = load(data_dir)
+    named = df[(df.level == "state") & (df.state == state) & df.state.isin(_NAMED_STATES)]
+    if not named.empty:
+        r = named.iloc[0]
+        return {"state": state, "reported": True, "loans_count": int(r.loans_count),
+                "loan_amount_cr": float(r.loan_amount_cr),
+                "note": "%s separately reported: %d loans" % (state, int(r.loans_count))}
+    r = residual_others(data_dir)
+    bound = r["loans_count"] if r else None
+    return {"state": state, "reported": False, "loans_count_upper_bound": bound,
+            "note": "%s not separately reported; loans bounded [0, %s] (residual of all unnamed states+UTs)"
+                    % (state, bound if bound is not None else "?")}
+
+
+def maha_state_total(data_dir: str = "data") -> dict:
+    """Back-compat alias for Maharashtra (see state_upper_bound)."""
+    b = state_upper_bound("Maharashtra", data_dir)
+    return {"loans_count_upper_bound": b.get("loans_count_upper_bound"),
+            "reported": b["reported"], "note": b["note"]}
+
+
 def national_context(data_dir: str = "data") -> dict | None:
     """Vetted national total, shown only as clearly-labelled external context."""
     df = load(data_dir)
@@ -103,3 +158,10 @@ if __name__ == "__main__":
     nat = national_context(a.data_dir)
     print(f"\nVetted MP loan figure: {mp if mp else 'NONE — MP loan numerator is unvetted, excluded from the verdict'}")
     print(f"Vetted national context: {nat['loans_count']:,} loans / Rs {nat['loan_amount_cr']:.2f} cr" if nat else "none")
+
+    resid = residual_others(a.data_dir)
+    mh = maha_state_total(a.data_dir)
+    if resid:
+        print(f"\nResidual (all states+UTs except {', '.join(resid['named_states'])}): "
+              f"{resid['loans_count']:,} loans / Rs {resid['loan_amount_cr']:.2f} cr")
+    print(f"Maharashtra numerator: {mh['note']}")
