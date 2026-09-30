@@ -22,6 +22,12 @@
   "record_charges_observed": 0,
   "cards_checked": 0,
   "sample_rows": [],
+  "national_cross_check": {
+    "national_card_backed_loans": 11147,
+    "national_cards_issued": 24200000,
+    "card_backed_rate_pct": 0.0461,
+    "note": "CERSAI is the national charge registry; the parliamentary count is the card-backed subset. Rate is nominal nationally, independent of any state census."
+  },
   "collateral_nominal": true,
   "verdict": "Gujarat is not separately reported; the residual leaves at most 99 card-backed loans for every unnamed state+UT combined, so its count is nominal by construction. The on-record charge sample is not yet collected (0 checked); the numerator bound alone already shows the collateral function is nominal."
 }

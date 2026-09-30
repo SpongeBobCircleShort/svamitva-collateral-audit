@@ -72,6 +72,20 @@ def reconcile(state: str, data_dir: str, worklist: str, charge_col: str) -> dict
         verdict = (f"A registered charge was observed in the {state} sample ({charges}/{checked}) — "
                    "the record reflects card collateral in at least some cases.")
 
+    # national cross-check: card-backed loans (CERSAI-registered subset ~= the parliamentary count)
+    # against total cards issued -> the national card-as-collateral rate. See docs/cersai_recon.md.
+    NATIONAL_CARDS_ISSUED = 24_200_000   # ~2.42 crore cards, as of Mar 2025 (SVAMITVA / MoP)
+    xcheck = None
+    if nat and nat.get("loans_count"):
+        rate = nat["loans_count"] / NATIONAL_CARDS_ISSUED
+        xcheck = {
+            "national_card_backed_loans": nat["loans_count"],
+            "national_cards_issued": NATIONAL_CARDS_ISSUED,
+            "card_backed_rate_pct": round(rate * 100, 4),
+            "note": "CERSAI is the national charge registry; the parliamentary count is the "
+                    "card-backed subset. Rate is nominal nationally, independent of any state census.",
+        }
+
     out = {
         "state": state,
         "official_national_vetted": nat,
@@ -81,6 +95,7 @@ def reconcile(state: str, data_dir: str, worklist: str, charge_col: str) -> dict
         "record_charges_observed": charges,
         "cards_checked": checked,
         "sample_rows": samp["rows"],
+        "national_cross_check": xcheck,
         "collateral_nominal": bool(nominal),
         "verdict": verdict,
     }
@@ -107,5 +122,10 @@ if __name__ == "__main__":
     print(f"record charges observed: {r['record_charges_observed']} (across {r['cards_checked']} card(s) checked)")
     for row in r["sample_rows"]:
         print(f"   - {row['district']}/{row['village']}: charge={row['charge']}")
+    xc = r.get("national_cross_check")
+    if xc:
+        print(f"national cross-check (CERSAI/parliamentary): {xc['national_card_backed_loans']:,} "
+              f"card-backed loans / {xc['national_cards_issued']:,} cards issued = "
+              f"{xc['card_backed_rate_pct']}% — nominal")
     print(f"\nverdict: {r['verdict']}")
     print(f"-> {r['_path']}")
