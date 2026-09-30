@@ -1,0 +1,5 @@
+metric,value,scope,as_of,source,url,vetted,note
+subsisting_registrations,5552909,"all-asset (every property type, all India)",2026-09,CERSAI portal counters (as reported),https://www.cersai.org.in/,False,ALL-ASSET total under SARFAESI — NOT SVAMITVA/card-backed; scale context only
+registered_institutions,292,all-asset (banks/NBFC/HFC etc.),2026-09,CERSAI portal counters (as reported),https://www.cersai.org.in/,False,lenders registered with CERSAI
+fee_based_transactions,1861189,all-asset,2026-09,CERSAI portal counters (as reported),https://www.cersai.org.in/,False,cumulative fee-based search/registration txns
+registry_basis,SARFAESI Act 2002; operational 2011,national,2026-09,CERSAI / Wikipedia,https://en.wikipedia.org/wiki/Central_Registry_of_Securitisation_Asset_Reconstruction_and_Security_Interest,False,legal basis + go-live
