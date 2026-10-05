@@ -4,3 +4,12 @@ pandas>=2.0
 numpy>=1.24
 pyarrow>=14
 beautifulsoup4
+
+# Scrapers / clients
+requests                 # DWR denominator + all state portal clients (MP/CG/MH/GJ)
+rapidfuzz                # SIPI geography fuzzy-match (cg_verify_sipi, gj_verify_sipi, gj_sampler)
+indic-transliteration    # Devanagari/Gujarati -> Latin for the same matchers
+
+# MP RoR only (webgis2 session-token mint); not needed for CG/GJ/MH or the denominator.
+# After install also run:  playwright install chromium
+playwright
