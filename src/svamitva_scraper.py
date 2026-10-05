@@ -17,9 +17,15 @@ Outputs (in --data-dir, default ./data):
   svamitva_cards.parquet      one row per village (join-ready denominator)
 
 Usage:
-  python src/svamitva_scraper.py                 # full MP
-  python src/svamitva_scraper.py --district 396  # just Bhopal (svamitva code)
-  python src/svamitva_scraper.py --limit 2       # first 2 districts (smoke test)
+  python src/svamitva_scraper.py                              # full MP (default state 23)
+  python src/svamitva_scraper.py --state 22                   # full Chhattisgarh
+  python src/svamitva_scraper.py --district Bhopal            # one district by name (or code)
+  python src/svamitva_scraper.py --district Dhar --tehsil Badnawar   # one tehsil
+  python src/svamitva_scraper.py --district Dhar --village Handia    # one village
+  python src/svamitva_scraper.py --limit 2                    # first 2 districts (smoke test)
+
+--district / --tehsil / --village accept a code OR a case-insensitive (partial) name, so the
+caller can target exactly the unit they want without looking up codes.
 """
 from __future__ import annotations
 
@@ -59,8 +65,23 @@ def _db(path: str) -> sqlite3.Connection:
     return con
 
 
-def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: float,
-           state: int = STATE):
+def _match(spec: str | None, *fields) -> bool:
+    """True if spec is unset, equals a field's code exactly, or is a case-insensitive substring of
+    any name field. Lets --district/--tehsil/--village take either a code or a (partial) name."""
+    if not spec:
+        return True
+    s = str(spec).strip().lower()
+    for f in fields:
+        if f is None:
+            continue
+        fs = str(f).strip().lower()
+        if s == fs or (not s.isdigit() and s in fs):
+            return True
+    return False
+
+
+def scrape(data_dir: str, only_district=None, limit: int | None = None, delay: float = 0.4,
+           state: int = STATE, only_tehsil: str | None = None, only_village: str | None = None):
     os.makedirs(data_dir, exist_ok=True)
     dbpath = os.path.join(data_dir, "svamitva.sqlite")
     con = _db(dbpath)
@@ -79,21 +100,33 @@ def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: f
     con.commit()
 
     if only_district is not None:
-        districts = [d for d in districts if d["code"] == only_district]
+        districts = [d for d in districts
+                     if _match(only_district, d["code"], d.get("name"), d.get("hindiName"))]
+        if not districts:
+            print(f"no district matched '{only_district}' in {sname}"); con.close(); return
     if limit:
         districts = districts[:limit]
 
+    # a tehsil/village filter targets specific units; skip the per-district "done" short-circuit so
+    # a re-run with a narrower filter still scrapes.
+    targeted = bool(only_tehsil or only_village)
     done = {r[0] for r in con.execute("SELECT district_code FROM done_districts")}
     for di, d in enumerate(districts, 1):
         dcode, dname = d["code"], d.get("name")
-        if dcode in done:
+        if dcode in done and not targeted:
             print(f"[{di}/{len(districts)}] {dname} ({dcode}) — already done, skip")
             continue
         blocks = c.call("getBlockPropertyCardDistributedCount", state, dcode)
+        blocks = [b for b in blocks if _match(only_tehsil, b["code"], b.get("name"), b.get("hindiName"))]
+        if only_tehsil and not blocks:
+            print(f"[{di}/{len(districts)}] {dname}: no tehsil matched '{only_tehsil}'")
+            continue
         nvill = 0
         for b in blocks:
             bcode = b["code"]
             villages = c.call("getVillagePropertyCardDistributedCount", state, dcode, bcode)
+            villages = [v for v in villages
+                        if _match(only_village, v["code"], v.get("name"), v.get("hindiName"))]
             for v in villages:
                 con.execute(
                     "INSERT OR REPLACE INTO villages VALUES (?,?,?,?,?,?,?,?,?,?,?)",
@@ -102,7 +135,8 @@ def scrape(data_dir: str, only_district: int | None, limit: int | None, delay: f
                      v.get("pcountall"), v.get("droneDate")),
                 )
             nvill += len(villages)
-        con.execute("INSERT OR REPLACE INTO done_districts VALUES (?)", (dcode,))
+        if not targeted:
+            con.execute("INSERT OR REPLACE INTO done_districts VALUES (?)", (dcode,))
         con.commit()
         print(f"[{di}/{len(districts)}] {dname} ({dcode}) — {len(blocks)} blocks, {nvill} villages")
 
@@ -122,8 +156,10 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-dir", default="data")
     ap.add_argument("--state", type=int, default=STATE, help="SVAMITVA/LGD state code (23=MP, 22=CG)")
-    ap.add_argument("--district", type=int, default=None, help="single SVAMITVA district code")
+    ap.add_argument("--district", default=None, help="district: code or (partial) name")
+    ap.add_argument("--tehsil", default=None, help="tehsil/block: code or (partial) name")
+    ap.add_argument("--village", default=None, help="village: code or (partial) name")
     ap.add_argument("--limit", type=int, default=None, help="only first N districts")
     ap.add_argument("--delay", type=float, default=0.4, help="base politeness delay (s)")
     a = ap.parse_args()
-    scrape(a.data_dir, a.district, a.limit, a.delay, a.state)
+    scrape(a.data_dir, a.district, a.limit, a.delay, a.state, a.tehsil, a.village)
