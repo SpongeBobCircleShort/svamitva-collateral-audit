@@ -1,5 +1,7 @@
 # SVAMITVA Collateral-Vetting System — Madhya Pradesh
 
+[![CI](https://github.com/SpongeBobCircleShort/svamitva-collateral-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/SpongeBobCircleShort/svamitva-collateral-audit/actions/workflows/ci.yml)
+
 Vets the claim that SVAMITVA property cards give rural owners **usable loan collateral**, by
 triangulating three evidence layers and showing the result in an interactive dashboard.
 
