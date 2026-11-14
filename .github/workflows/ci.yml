@@ -1,7 +1,8 @@
 name: CI
 
 # There is no test suite yet. This checks that every file in src/ compiles and that the
-# modules import cleanly with the pinned dependencies and no network access.
+# modules import cleanly with no network access, using the newest versions that
+# requirements.txt / requirements-dev.txt allow (they set lower bounds only).
 
 on:
   push:
@@ -55,7 +56,10 @@ jobs:
           sys.path.insert(0, "src")
           mods = sorted(p.stem for p in pathlib.Path("src").glob("*.py") if p.stem not in SKIP)
           for m in mods:
-              importlib.import_module(m)
+              try:
+                  importlib.import_module(m)
+              except SystemExit:
+                  raise RuntimeError(f"{m} called sys.exit at import")
               print("imported", m)
           print(f"{len(mods)} modules imported")
           EOF

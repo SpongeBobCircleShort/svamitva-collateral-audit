@@ -45,7 +45,7 @@ positive-control sweep from `loan_hunter.py`.
 
 ## Setup
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt       # includes requirements.txt; adds requests, playwright
 python -m playwright install chromium     # for the sampler / request-id mint
 ```
 

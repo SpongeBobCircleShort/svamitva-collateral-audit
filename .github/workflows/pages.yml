@@ -1,7 +1,11 @@
 name: Publish dashboard
 
-# Publishes web/index.html (the self-contained verdict dashboard) to GitHub Pages.
+# Publishes web/index.html (the verdict dashboard: a single page with its data embedded;
+# fonts load from Google Fonts) to GitHub Pages.
 # One-time setup: Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+# If Pages is enabled after this workflow has already run and failed, re-run it from
+# Actions -> Publish dashboard -> Run workflow. A push only re-triggers it when it
+# changes web/ or this file.
 
 on:
   push:
