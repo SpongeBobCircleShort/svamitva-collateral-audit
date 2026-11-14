@@ -3,6 +3,10 @@
 Vets the claim that SVAMITVA property cards give rural owners **usable loan collateral**, by
 triangulating three evidence layers and showing the result in an interactive dashboard.
 
+**[Open the live dashboard](https://spongebobcircleshort.github.io/svamitva-collateral-audit/)** (a single static page, `web/index.html`)
+
+[![Dashboard screenshot](docs/dashboard.png)](https://spongebobcircleshort.github.io/svamitva-collateral-audit/)
+
 ## The verdict (current)
 
 - **4,324,175** cards issued (52 districts, 35,899 villages) — scraped in full, vetted.
