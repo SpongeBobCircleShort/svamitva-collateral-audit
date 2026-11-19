@@ -1,0 +1,20 @@
+{
+  "state": "Gujarat",
+  "state_code": 24,
+  "districts": 33,
+  "villages": 9735,
+  "cards_distributed": 1322123,
+  "portal": "AnyRoR (anyror.gujarat.gov.in)",
+  "gating": "MH-class: cascade ungated, VF-7/VF-6 record view captcha-gated",
+  "sipi_rows": 131,
+  "textual_ok": 78,
+  "textual_mismatch": 24,
+  "textual_mismatch_note": "all mismatches are researcher-N vs portal-Y: a VF-7 record exists but is agricultural, not the abadi/gamtal habitation record the researcher assessed (habitation record needs the captcha-gated gamtal view)",
+  "uncomparable": 29,
+  "sampled_survey_present": [
+    44,
+    106
+  ],
+  "boja": "captcha-gated; collected via gj_sampler (assisted). VF-7 carries બોજો; frame = 32 villages (one/district)",
+  "numerator": "GJ not separately named in the parliamentary loan reply -> residual bound <=99 (all unnamed states+UTs combined)"
+}

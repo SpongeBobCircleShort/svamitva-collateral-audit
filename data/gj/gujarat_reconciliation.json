@@ -1,0 +1,27 @@
+{
+  "state": "Gujarat",
+  "official_national_vetted": {
+    "loans_count": 11147,
+    "loan_amount_cr": 1713.68,
+    "as_of": "2026-08-05",
+    "url": "https://aninews.in/news/national/general-news/330-lakh-villages-mapped-under-svamitva-scheme-rs-1713-cr-loans-disbursed-using-property-cards20260805182142/"
+  },
+  "numerator_upper_bound": 99,
+  "reported_separately": false,
+  "residual_note": {
+    "loans_count": 99,
+    "loan_amount_cr": 10.65,
+    "named_states": [
+      "Rajasthan",
+      "Madhya Pradesh",
+      "Jammu & Kashmir",
+      "Ladakh"
+    ],
+    "as_of": "2026-08-05"
+  },
+  "record_charges_observed": 0,
+  "cards_checked": 0,
+  "sample_rows": [],
+  "collateral_nominal": true,
+  "verdict": "Gujarat is not separately reported; the residual leaves at most 99 card-backed loans for every unnamed state+UT combined, so its count is nominal by construction. The on-record charge sample is not yet collected (0 checked); the numerator bound alone already shows the collateral function is nominal."
+}
