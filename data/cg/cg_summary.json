@@ -1,0 +1,22 @@
+{
+  "state": "Chhattisgarh",
+  "state_code": 22,
+  "districts": 33,
+  "villages": 7730,
+  "cards_distributed": 625456,
+  "sipi_rows": 90,
+  "sipi_textual_ok": 64,
+  "sipi_textual_mismatch": 14,
+  "sipi_uncomparable": 12,
+  "sampled_land_type": {
+    "govt": 44,
+    "private-agri": 9,
+    "abadi": 8
+  },
+  "abadi_of_resolved": [
+    8,
+    61
+  ],
+  "mutation_retrievable": 61,
+  "finding": "CG land records are open (no captcha). Property cards / abadi are NOT held as per-household records: abadi is a single government khasra per village. Of the researcher-sampled survey numbers that resolve on Bhuiyan, only 8/61 carry abadi tenure; 44 are govt land, 9 private agricultural. No abadi charge/lien field exists on the portal (CERSAI is an external link), so CG offers no on-record property-card collateral signal to census. Mutation status IS retrievable per khasra (unlike MP)."
+}
