@@ -1,0 +1,65 @@
+name: CI
+
+# There is no test suite yet. This checks that every file in src/ compiles and that the
+# modules import cleanly with no network access, using the newest versions that
+# requirements.txt / requirements-dev.txt allow (they set lower bounds only).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Byte-compile src
+        run: python -m compileall -q src
+
+      - name: Import modules (network blocked)
+        run: |
+          python - <<'EOF'
+          import importlib
+          import pathlib
+          import socket
+          import sys
+
+          def no_network(*args, **kwargs):
+              raise RuntimeError("network access during import")
+
+          socket.socket.connect = no_network
+          socket.create_connection = no_network
+          socket.getaddrinfo = no_network
+
+          # These do their work at import time (the Streamlit page, scans of local
+          # data/ folders), so they are only byte-compiled above, not imported.
+          SKIP = {"dashboard", "check_col11", "check_other_rights"}
+
+          sys.path.insert(0, "src")
+          mods = sorted(p.stem for p in pathlib.Path("src").glob("*.py") if p.stem not in SKIP)
+          for m in mods:
+              try:
+                  importlib.import_module(m)
+              except SystemExit:
+                  raise RuntimeError(f"{m} called sys.exit at import")
+              print("imported", m)
+          print(f"{len(mods)} modules imported")
+          EOF

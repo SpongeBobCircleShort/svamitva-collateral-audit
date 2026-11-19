@@ -26,13 +26,13 @@
       "district": "Nandurbar",
       "village": "तोरणमाळ(जुने)",
       "charge": "N",
-      "note": "इतर भार empty; holder ancestral; PU-ID 50018065308"
+      "note": "इतर भार empty; holder ancestral"
     },
     {
       "district": "Pune",
       "village": "अभेपुरी",
       "charge": "N",
-      "note": "abhepuri CTS1: holder Pol (2023); Other Encumbrances blank; verified in-browser"
+      "note": "abhepuri CTS1: holder on record (2023); Other Encumbrances blank; verified in-browser"
     }
   ],
   "collateral_nominal": true,

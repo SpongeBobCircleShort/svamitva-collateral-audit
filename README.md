@@ -1,7 +1,13 @@
 # SVAMITVA Collateral-Vetting System — Madhya Pradesh
 
+[![CI](https://github.com/SpongeBobCircleShort/svamitva-collateral-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/SpongeBobCircleShort/svamitva-collateral-audit/actions/workflows/ci.yml)
+
 Vets the claim that SVAMITVA property cards give rural owners **usable loan collateral**, by
 triangulating three evidence layers and showing the result in an interactive dashboard.
+
+**[Open the live dashboard](https://spongebobcircleshort.github.io/svamitva-collateral-audit/)** (a single static page, `web/index.html`)
+
+[![Dashboard screenshot](docs/dashboard.png)](https://spongebobcircleshort.github.io/svamitva-collateral-audit/)
 
 ## The verdict (current)
 
@@ -39,7 +45,7 @@ positive-control sweep from `loan_hunter.py`.
 
 ## Setup
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt       # includes requirements.txt; adds requests, playwright
 python -m playwright install chromium     # for the sampler / request-id mint
 ```
 
